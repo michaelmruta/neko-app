@@ -2,11 +2,18 @@
   "version": "0.2.0",
   "compounds": [
     {
-      "name": "Launch Both Services",
-      "configurations": ["Server", "Client"]
+      "name": "Launch Services",
+      "configurations": ["Server", "Client", "Chrome"]
     }
   ],
   "configurations": [
+    {
+      "name": "Chrome",
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}"
+    },
     {
       "type": "node",
       "request": "launch",
