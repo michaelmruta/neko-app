@@ -2,13 +2,134 @@ const fs = require("fs");
 const path = require("path");
 
 const viewsPath = path.join(__dirname, "..", "client", "src", "views");
-const schemaPath = path.join(
-  __dirname,
-  "..",
-  "server",
-  "prisma",
-  "schema.prisma"
-);
+const schemaPath = path.join(__dirname, "..", "server", "prisma", "models");
+
+const headerPartial = (title) => `<div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <h2 class="page-title">{{ name }}</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <button class="btn btn-primary d-none d-sm-inline-block" @click="openAddUserModal">
+              <i class="ti ti-plus"></i>
+              Add ${title}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+const filtersPartial = `<div class="card-body border-bottom py-3">
+          <div class="d-flex">
+            <div class="text-muted">
+              Show
+              <div class="mx-2 d-inline-block">
+                <select class="form-select form-select-sm" v-model="pageSize">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+              entries
+            </div>
+            <div class="ms-auto text-muted">
+              Search:
+              <div class="ms-2 d-inline-block">
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  v-model="searchQuery"
+                  placeholder="Search users..."
+                />
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+const footerPartial = `<div class="card-footer d-flex align-items-center">
+          <p class="m-0 text-muted">
+            Showing
+            <span>{{ (currentPage - 1) * pageSize + 1 }}</span> to
+            <span>{{ Math.min(currentPage * pageSize, filteredSet.length) }}</span> of
+            <span>{{ filteredSet.length }}</span> entries
+          </p>
+          <ul class="pagination m-0 ms-auto">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <button class="page-link" @click="currentPage--" :disabled="currentPage === 1">
+                Previous
+              </button>
+            </li>
+            <li
+              class="page-item"
+              v-for="page in totalPages"
+              :key="page"
+              :class="{ active: currentPage === page }"
+            >
+              <button class="page-link" @click="currentPage = page">
+                {{ page }}
+              </button>
+            </li>
+            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+              <button
+                class="page-link"
+                @click="currentPage++"
+                :disabled="currentPage === totalPages"
+              >
+                Next
+              </button>
+            </li>
+          </ul>
+        </div>`;
+
+const pageWrapper = (title, html) => `<template>
+    ${headerPartial(title)}
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+       <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">${title}</h3>
+          </div>
+          ${filtersPartial}
+          <div class="row g-2 align-items-center">
+            <div class="col">
+              ${html}
+            </div>
+          </div>
+           ${footerPartial}
+        </div>
+       
+      </div>
+    </div>
+  </template>
+  <script>
+    import { ref, computed, onMounted, watch } from 'vue'
+
+    const searchQuery = ref('')
+    const pageSize = ref(10)
+    const currentPage = ref(1)
+    const totalPages = computed(() => {
+      return Math.ceil(filteredSet.value.length / pageSize.value)
+    })
+
+    watch([searchQuery, pageSize], () => {
+      currentPage.value = 1
+    })
+
+    export default {
+      computed: {
+        filteredSet() {
+          return (!searchQuery.value) ? [] : []
+        },
+        name() {
+          return this.$route.name
+        },
+      },
+    }
+  </script>`;
 
 // Map Prisma types to form controls
 const typeToFormControl = {
@@ -95,19 +216,11 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function pageWrapper(title, html) {
-  return `<template>
-    <div class="page-header d-print-none">
-      <div class="container-xl">
-        <div class="row g-2 align-items-center">
-          <div class="col">
-            <h2 class="page-title">${title}</h2>
-            ${html}
-          </div>
-        </div>
-      </div>
-    </div>
-  </template>`;
+function toSentenceCase(str) {
+  return str
+    .split(/(?=[A-Z])/)
+    .map((word) => capitalizeFirstLetter(word))
+    .join(" ");
 }
 
 function generateForm(model) {
@@ -164,12 +277,10 @@ function generateTable(model) {
     <tr>\n`;
 
   model.fields.forEach((field) => {
-    tableHtml += `      <th scope="col">${capitalizeFirstLetter(
-      field.name
-    )}</th>\n`;
+    tableHtml += `<th scope="col">${toSentenceCase(field.name)}</th>\n`;
   });
 
-  tableHtml += `    </tr>
+  tableHtml += `</tr>
   </thead>
   <tbody>
     <!-- Table rows to be populated by JavaScript -->
@@ -179,39 +290,48 @@ function generateTable(model) {
   return pageWrapper(model.name, tableHtml);
 }
 
-fs.readFile(schemaPath, "utf8", (err, data) => {
+fs.readdir(schemaPath, (err, files) => {
   if (err) {
-    console.error("Error reading the file:", err);
-    return;
+    console.error("Error reading dir file:", err);
   }
+  for (let file of files) {
+    if (file.includes(".prisma")) {
+      fs.readFile(path.join(schemaPath, file), "utf8", (err, data) => {
+        if (err) {
+          console.error("Error reading the file:", err);
+          return;
+        }
 
-  // Extract model definitions from the schema content
-  const models = extractModels(data);
+        // Extract model definitions from the schema content
+        const models = extractModels(data);
 
-  console.log(models);
-  // Generate Bootstrap HTML for each model
+        console.log(models);
+        // Generate Bootstrap HTML for each model
 
-  const html = models.map((model) => {
-    const dirPath = path.join(`${viewsPath}`, model.name.toLowerCase());
+        const html = models.map((model) => {
+          const dirPath = path.join(`${viewsPath}`, model.name.toLowerCase());
 
-    console.log(dirPath);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
+          console.log(dirPath);
+          if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+          }
+
+          fs.writeFileSync(
+            `${viewsPath}/${model.name?.toLowerCase()}/edit.vue`,
+            generateForm(model),
+            {
+              encoding: "utf-8",
+            }
+          );
+          fs.writeFileSync(
+            `${viewsPath}/${model.name?.toLowerCase()}/list.vue`,
+            generateTable(model),
+            {
+              encoding: "utf-8",
+            }
+          );
+        });
+      });
     }
-
-    fs.writeFileSync(
-      `${viewsPath}/${model.name?.toLowerCase()}/edit.vue`,
-      generateForm(model),
-      {
-        encoding: "utf-8",
-      }
-    );
-    fs.writeFileSync(
-      `${viewsPath}/${model.name?.toLowerCase()}/list.vue`,
-      generateTable(model),
-      {
-        encoding: "utf-8",
-      }
-    );
-  });
+  }
 });
