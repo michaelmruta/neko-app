@@ -1,9 +1,9 @@
 server/node_modules/
 server/.env
+server/logs
 
 client/node_modules
 client/.env
-client/logs
 
 tabler-1.2.0
 
