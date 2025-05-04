@@ -4,12 +4,68 @@ const crypto = require("crypto");
 const prisma = require("../database");
 const { sendVerificationEmail, sendPasswordResetEmail } = require("../mailer");
 
-/**
- * @route POST /api/users/register
- * @desc Register a new user
- * @access Public
- */
+// Pagination middleware
+const paginatedResults = (model) => async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const q = req.query.q || "";
+  const startIndex = (page - 1) * limit;
+
+  try {
+    // Build a filter if a search query is provided.
+    const where = q
+      ? {
+          OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            { email: { contains: q, mode: "insensitive" } },
+          ],
+        }
+      : {};
+
+    const results = await model.findMany({
+      skip: startIndex,
+      take: limit,
+      // where,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    const total = await model.count();
+
+    res.paginatedResults = {
+      success: true,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+      results,
+    };
+    next();
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Error fetching paginated results" });
+  }
+};
+
 module.exports = function (app) {
+  // Admin middleware
+  const requireAdmin = (req, res, next) => {
+    if (!req.session.user || req.session.user.role !== "ADMIN") {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+    next();
+  };
+  /**
+   * @route POST /api/users/register
+   * @desc Register a new user
+   * @access Public
+   */
   app.post("/api/users/register", async (req, res) => {
     try {
       const { name, email, password } = req.body;
@@ -42,6 +98,7 @@ module.exports = function (app) {
         data: {
           name,
           email,
+          role: "USER",
           password: hashedPassword,
           verificationToken,
           isVerified: false,
@@ -103,6 +160,20 @@ module.exports = function (app) {
    * @desc Authenticate user & get token
    * @access Public
    */
+  /**
+   * @route GET /api/users
+   * @desc Get paginated users list (Admin only)
+   * @access Private/Admin
+   */
+  app.get(
+    "/api/users",
+    // requireAdmin,
+    paginatedResults(prisma.user),
+    async (req, res) => {
+      res.json(res.paginatedResults);
+    }
+  );
+
   app.post("/api/users/login", async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -120,7 +191,7 @@ module.exports = function (app) {
       });
 
       if (!user) {
-        return res.status(400).json({ message: "Invalid credentials" });
+        return res.status(400).json({ message: "Invalid credentials." });
       }
 
       // Check if email is verified
@@ -131,10 +202,11 @@ module.exports = function (app) {
       }
 
       // Check password
+      console.log("password", user.password);
       const isMatch = await bcrypt.compare(password, user.password);
 
       if (!isMatch) {
-        return res.status(400).json({ message: "Invalid credentials" });
+        return res.status(400).json({ message: "Invalid credentials.." });
       }
 
       // Set user in session
@@ -142,6 +214,7 @@ module.exports = function (app) {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
       };
 
       res.json({
@@ -296,6 +369,7 @@ module.exports = function (app) {
           id: true,
           name: true,
           email: true,
+          role: true,
           createdAt: true,
           updatedAt: true,
           isVerified: true,

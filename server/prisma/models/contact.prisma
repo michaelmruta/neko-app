@@ -1,0 +1,11 @@
+
+model Contact {
+  id         Int      @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  email      String?  @unique
+  phone      String?
+  position   String?
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId Int
+}

@@ -9,6 +9,18 @@
 
       <form class="card card-md" @submit.prevent="handleLogin">
         <div class="card-body">
+          <h1 class="text-center mb-4">
+            <a href="#">
+              <img
+                src="/static/logo.svg"
+                width="110"
+                height="32"
+                alt="Tabler"
+                class="navbar-brand-image"
+              />
+            </a>
+          </h1>
+
           <h2 class="card-title text-center mb-4">Login to your account</h2>
 
           <div class="mb-3">
@@ -87,18 +99,39 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 const email = ref('')
 const password = ref('')
 const rememberMe = ref(false)
 const errorMessage = ref('')
+const isLoading = ref(false)
 
-function handleLogin() {
-  if (email.value === 'admin@example.com' && password.value === '1234') {
-    alert('Logged in!')
+async function handleLogin() {
+  try {
+    isLoading.value = true
     errorMessage.value = ''
-  } else {
-    errorMessage.value = 'Invalid email or password.'
+
+    const success = await authStore.login(email.value, password.value)
+
+    if (success) {
+      router.push('/dashboard')
+    } else {
+      errorMessage.value = authStore.error || 'Login failed. Please try again.'
+    }
+  } catch (error) {
+    errorMessage.value = 'An unexpected error occurred.'
+    console.error(error)
+  } finally {
+    isLoading.value = false
   }
+}
+
+function goToSignUp() {
+  router.push('/signup')
 }
 </script>

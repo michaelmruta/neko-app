@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
  */
 async function sendVerificationEmail(email, token) {
   const verificationUrl = `${
-    process.env.APP_URL || "http://localhost:3000"
+    process.env.BASE_URL || "http://localhost:3000"
   }/verify-email?token=${token}`;
 
   await transporter.sendMail({
@@ -42,7 +42,7 @@ async function sendVerificationEmail(email, token) {
  */
 async function sendPasswordResetEmail(email, token) {
   const resetUrl = `${
-    process.env.APP_URL || "http://localhost:3000"
+    process.env.BASE_URL || "http://localhost:3000"
   }/reset-password?token=${token}`;
 
   await transporter.sendMail({

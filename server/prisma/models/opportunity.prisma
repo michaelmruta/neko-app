@@ -1,0 +1,23 @@
+
+model Opportunity {
+  id          Int              @id @default(autoincrement())
+  title       String
+  description String?
+  amount      Float?
+  stage       OpportunityStage
+  customer    Customer         @relation(fields: [customerId], references: [id])
+  customerId  Int
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+enum OpportunityStage {
+  PROSPECTING
+  QUALIFICATION
+  NEED_ANALYSIS
+  VALUE_PROPOSITION
+  ID_DECISION_MAKER_BUYER
+  NEGOTIATION_REVIEW
+  CLOSED_WON
+  CLOSED_LOST
+}

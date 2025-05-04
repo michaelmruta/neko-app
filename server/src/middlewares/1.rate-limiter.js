@@ -2,7 +2,7 @@ const rateLimit = require("express-rate-limit");
 
 module.exports = function (app) {
   // heartbeat
-  app.use("/", (req, res) => {
+  app.use("/ping", (req, res) => {
     res.send(new Date().getTime());
   });
 
