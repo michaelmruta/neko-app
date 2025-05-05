@@ -28,3 +28,7 @@ body {
     'Helvetica Neue',
     sans-serif;
 }
+
+.navbar-brand-image {
+  height: 64px;
+}

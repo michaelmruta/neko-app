@@ -124,7 +124,7 @@ module.exports = function (app) {
    * @desc Verify user email
    * @access Public
    */
-  app.get("/api/users/verify/:token", async (req, res) => {
+  app.get("/api/verify-email/:token", async (req, res) => {
     try {
       const { token } = req.params;
 
@@ -133,7 +133,7 @@ module.exports = function (app) {
         where: { verificationToken: token },
       });
 
-      if (!user) {
+      if (!token || !user) {
         return res.status(400).json({ message: "Invalid verification token" });
       }
 
@@ -216,6 +216,13 @@ module.exports = function (app) {
         name: user.name,
         role: user.role,
       };
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          lastLogin: new Date(),
+        },
+      });
 
       res.json({
         message: "Logged in successfully",

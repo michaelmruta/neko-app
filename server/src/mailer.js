@@ -1,15 +1,47 @@
 const nodemailer = require("nodemailer");
 
-// Configure email transporter (replace with your SMTP settings in production)
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.example.com",
-  port: process.env.SMTP_PORT || 587,
-  secure: process.env.SMTP_SECURE === "true",
-  auth: {
-    user: process.env.SMTP_USER || "user@example.com",
-    pass: process.env.SMTP_PASS || "password",
-  },
-});
+// Create reusable transporter
+let transporter;
+
+// Initialize transporter
+async function initializeTransporter() {
+  // For development environment
+  if (process.env.NODE_ENV !== "production") {
+    // Create test account
+    const testAccount = await nodemailer.createTestAccount();
+
+    // Configure with Ethereal credentials
+    transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
+
+    console.log("Ethereal Email credentials:", {
+      user: testAccount.user,
+      pass: testAccount.pass,
+      preview: testAccount.web, // URL to view emails
+    });
+  } else {
+    // Production configuration
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.example.com",
+      port: process.env.SMTP_PORT || 587,
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER || "user@example.com",
+        pass: process.env.SMTP_PASS || "password",
+      },
+    });
+  }
+}
+
+// Initialize transporter when module is loaded
+initializeTransporter();
 
 /**
  * Send verification email to user
@@ -20,9 +52,9 @@ const transporter = nodemailer.createTransport({
 async function sendVerificationEmail(email, token) {
   const verificationUrl = `${
     process.env.BASE_URL || "http://localhost:3000"
-  }/verify-email?token=${token}`;
+  }/api/verify-email/${token}`;
 
-  await transporter.sendMail({
+  const info = await transporter.sendMail({
     from: process.env.MAIL_FROM || '"Neko App" <noreply@example.com>',
     to: email,
     subject: "Verify your email address",
@@ -32,6 +64,11 @@ async function sendVerificationEmail(email, token) {
       <a href="${verificationUrl}">${verificationUrl}</a>
     `,
   });
+
+  // Log preview URL in development environment
+  if (process.env.NODE_ENV !== "production") {
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  }
 }
 
 /**

@@ -1,0 +1,19 @@
+model Inventory {
+    id          Int             @id @default(autoincrement())
+    productId   Int
+    product     Product         @relation(fields: [productId], references: [id])
+    quantity    Int
+    location    String?
+    status      InventoryStatus
+    lastUpdated DateTime        @default(now())
+    createdAt   DateTime        @default(now())
+    updatedAt   DateTime        @updatedAt
+}
+
+enum InventoryStatus {
+    IN_STOCK
+    LOW_STOCK
+    OUT_OF_STOCK
+    ON_ORDER
+    RESERVED
+}

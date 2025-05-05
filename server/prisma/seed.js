@@ -388,13 +388,68 @@ async function main() {
     },
   ];
 
+  const createdProducts = []; // Add this line to create the array
+
   for (const product of products) {
-    await prisma.product.create({
+    const createdProduct = await prisma.product.create({
+      // Store the result
       data: product,
+    });
+    createdProducts.push(createdProduct); // Add the created product to the array
+  }
+
+  // Add this to your existing seed.js file, after the product creation section
+
+  // Create inventory items for products
+  const inventoryStatuses = [
+    "IN_STOCK",
+    "LOW_STOCK",
+    "OUT_OF_STOCK",
+    "ON_ORDER",
+    "RESERVED",
+  ];
+
+  const locations = [
+    "Warehouse A",
+    "Warehouse B",
+    "Store Front",
+    "Distribution Center",
+    "Supplier Facility",
+  ];
+
+  // First, clear any existing inventory data
+  await prisma.inventory.deleteMany({});
+
+  // Reset auto-increment counter for Inventory
+  await prisma.$executeRaw`DELETE FROM sqlite_sequence WHERE name = 'Inventory';`;
+
+  // Create inventory entries for each product
+  for (const product of createdProducts) {
+    const randomStatus =
+      inventoryStatuses[Math.floor(Math.random() * inventoryStatuses.length)];
+    const randomLocation =
+      locations[Math.floor(Math.random() * locations.length)];
+    const quantity =
+      randomStatus === "OUT_OF_STOCK"
+        ? 0
+        : randomStatus === "LOW_STOCK"
+        ? Math.floor(Math.random() * 10) + 1
+        : Math.floor(Math.random() * 100) + 10;
+
+    await prisma.inventory.create({
+      data: {
+        productId: product.id,
+        quantity: quantity,
+        location: randomLocation,
+        status: randomStatus,
+        lastUpdated: new Date(
+          Date.now() - Math.floor(Math.random() * 30) * 86400000
+        ), // Random date within last 30 days
+      },
     });
   }
 
-  console.log("Seed data created successfully");
+  console.log("Inventory data seeded successfully");
 }
 
 main()

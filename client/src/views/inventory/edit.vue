@@ -13,7 +13,7 @@
               @click="addRecord()"
             >
               <i class="ti ti-plus"></i>
-              Add Product
+              Add Inventory
             </button>
           </div>
         </div>
@@ -24,7 +24,7 @@
     <div class="container-xl">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h4 class="card-title">Product</h4>
+          <h4 class="card-title">Inventory</h4>
           <h3 class="card-title">{{ id ? '#' + id : '' }}</h3>
         </div>
 
@@ -33,62 +33,49 @@
             <form @submit.prevent="saveRecord">
               <div class="row">
                 <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
-                  <label for="name" class="form-label">Name</label>
-                  <input type="text" class="form-control" id="name" v-model="formData.name" />
-                </div>
-                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
-                  <label for="description" class="form-label">Description</label>
-                  <textarea
-                    class="form-control"
-                    id="description"
-                    v-model="formData.description"
-                    rows="3"
-                  ></textarea>
-                </div>
-                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
-                  <label for="price" class="form-label">Price</label>
-                  <input type="number" class="form-control" id="price" v-model="formData.price" />
-                </div>
-                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
-                  <label for="sku" class="form-label">Sku</label>
-                  <input type="text" class="form-control" id="sku" v-model="formData.sku" />
-                </div>
-                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
-                  <label for="category" class="form-label">Category</label>
+                  <label for="productId" class="form-label">Product Id</label>
                   <input
-                    type="text"
+                    type="number"
                     class="form-control"
-                    id="category"
-                    v-model="formData.category"
+                    id="productId"
+                    v-model="formData.productId"
                   />
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
-                  <div class="form-check">
-                    <input
-                      type="checkbox"
-                      class="form-check-input"
-                      id="inStock"
-                      v-model="formData.inStock"
-                    />
-                    <label class="form-check-label" for="inStock">In Stock</label>
-                  </div>
+                  <label for="product" class="form-label">Product</label>
+                  <select class="form-select" id="product" v-model="formData.product">
+                    <!-- Options to be populated by JavaScript -->
+                  </select>
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
-                  <label for="imageUrl" class="form-label">Image Url</label>
+                  <label for="quantity" class="form-label">Quantity</label>
                   <input
-                    type="text"
+                    type="number"
                     class="form-control"
-                    id="imageUrl"
-                    v-model="formData.imageUrl"
+                    id="quantity"
+                    v-model="formData.quantity"
                   />
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
-                  <label for="inventory" class="form-label">Inventory</label>
+                  <label for="location" class="form-label">Location</label>
                   <input
                     type="text"
                     class="form-control"
-                    id="inventory"
-                    v-model="formData.inventory"
+                    id="location"
+                    v-model="formData.location"
+                  />
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="status" class="form-label">Status</label>
+                  <input type="text" class="form-control" id="status" v-model="formData.status" />
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="lastUpdated" class="form-label">Last Updated</label>
+                  <input
+                    type="datetime-local"
+                    class="form-control"
+                    id="lastUpdated"
+                    :value="formatDateTime(formData.lastUpdated)"
                   />
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
@@ -201,7 +188,7 @@ export default {
         isLoading.value = true
         errorMessage.value = ''
 
-        const response = await authStore.getItem('product', id)
+        const response = await authStore.getItem('inventory', id)
         console.log('Fetched record:', response)
         formData.value = response.data || {}
       } catch (error) {
@@ -224,7 +211,7 @@ export default {
         }
 
         // Navigate back to list view on success
-        router.push(`/product`)
+        router.push(`/inventory`)
       } catch (error) {
         errorMessage.value = 'Failed to save: ' + (error.message || 'Unknown error')
         console.error('Failed to save record:', error)
@@ -234,15 +221,15 @@ export default {
     }
 
     async function createRecord() {
-      return authStore.createItem('product', formData.value)
+      return authStore.createItem('inventory', formData.value)
     }
 
     async function updateRecord() {
-      return authStore.updateItem('product', route.query.id, formData.value)
+      return authStore.updateItem('inventory', route.query.id, formData.value)
     }
 
     function cancel() {
-      router.push(`/product`)
+      router.push(`/inventory`)
     }
 
     function formatDateTime(dateValue) {
@@ -276,7 +263,7 @@ export default {
       return this.$route.name
     },
     title() {
-      return this.isNewRecord ? 'New Product' : 'Edit Product'
+      return this.isNewRecord ? 'New Inventory' : 'Edit Inventory'
     },
   },
 }

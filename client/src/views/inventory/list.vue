@@ -13,7 +13,7 @@
               @click="addRecord()"
             >
               <i class="ti ti-plus"></i>
-              Add Product
+              Add Inventory
             </button>
           </div>
         </div>
@@ -24,7 +24,7 @@
     <div class="container-xl">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h4 class="card-title">Product</h4>
+          <h4 class="card-title">Inventory</h4>
           <h3 class="card-title">{{ id ? '#' + id : '' }}</h3>
         </div>
         <div class="card-body border-bottom py-3">
@@ -61,14 +61,12 @@
                 <thead>
                   <tr>
                     <th scope="col">Id</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Sku</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">In Stock</th>
-                    <th scope="col">Image Url</th>
-                    <th scope="col">Inventory</th>
+                    <th scope="col">Product Id</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Last Updated</th>
                     <th scope="col">Created At</th>
                     <th scope="col">Updated At</th>
                     <th scope="col">Actions</th>
@@ -77,14 +75,12 @@
                 <tbody>
                   <tr v-for="item in items" :key="item.id">
                     <td>{{ item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.description }}</td>
-                    <td>{{ item.price }}</td>
-                    <td>{{ item.sku }}</td>
-                    <td>{{ item.category }}</td>
-                    <td>{{ item.inStock }}</td>
-                    <td>{{ item.imageUrl }}</td>
-                    <td>{{ item.inventory }}</td>
+                    <td>{{ item.productId }}</td>
+                    <td>{{ item.product }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.location }}</td>
+                    <td>{{ item.status }}</td>
+                    <td>{{ item.lastUpdated }}</td>
                     <td>{{ item.createdAt }}</td>
                     <td>{{ item.updatedAt }}</td>
                     <td>
@@ -192,11 +188,11 @@ export default {
     const itemToDelete = ref(null)
 
     function addRecord() {
-      router.push(`/product/edit`)
+      router.push(`/inventory/edit`)
     }
 
     function edit(item) {
-      router.push(`/product/edit?id=${item.id}`)
+      router.push(`/inventory/edit?id=${item.id}`)
     }
 
     function confirmDelete(item) {
@@ -213,7 +209,7 @@ export default {
       if (itemToDelete.value) {
         // Call API to delete the record
         authStore
-          .deleteItem('product', itemToDelete.value.id)
+          .deleteItem('inventory', itemToDelete.value.id)
           .then(() => {
             // Remove item from the list
             items.value = items.value.filter((item) => item.id !== itemToDelete.value.id)
@@ -249,7 +245,7 @@ export default {
 
     onMounted(async () => {
       try {
-        const response = await authStore.getList('product', currentPage.value, pageSize.value)
+        const response = await authStore.getList('inventory', currentPage.value, pageSize.value)
         items.value = response.results
       } catch (error) {
         console.error('Failed to fetch items:', error)
@@ -258,7 +254,7 @@ export default {
 
     watch([currentPage, pageSize], async () => {
       try {
-        const response = await authStore.getList('product', currentPage.value, pageSize.value)
+        const response = await authStore.getList('inventory', currentPage.value, pageSize.value)
         items.value = response.data
       } catch (error) {
         console.error('Failed to fetch items:', error)
@@ -290,7 +286,7 @@ export default {
       return this.$route.name
     },
     title() {
-      return 'Product List'
+      return 'Inventory List'
     },
   },
 }

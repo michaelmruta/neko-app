@@ -92,6 +92,19 @@
                 <span class="nav-link-title">Products</span>
               </router-link>
             </li>
+            <!-- Add this after the Products navigation item -->
+            <li class="nav-item">
+              <router-link
+                to="/inventory"
+                class="nav-link"
+                :class="{ active: $route.path === '/inventory' }"
+              >
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-box"></i>
+                </span>
+                <span class="nav-link-title">Inventory</span>
+              </router-link>
+            </li>
             <li class="nav-item">
               <router-link
                 to="/users"

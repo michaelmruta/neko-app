@@ -122,7 +122,21 @@ const router = createRouter({
                 name: 'product-edit',
                 component: () => import('../views/product/edit.vue')
             }]
-        }
+        },
+        {
+            path: '/inventory',
+            component: () => import('../layouts/DashboardLayout.vue'),
+            meta: { requiresAuth: true },
+            children: [{
+                path: '',
+                name: 'inventory-list',
+                component: () => import('../views/inventory/list.vue')
+            }, {
+                path: '/inventory/edit',
+                name: 'inventory-edit',
+                component: () => import('../views/inventory/edit.vue')
+            }]
+        },
     ]
 })
 

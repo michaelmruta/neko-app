@@ -9,19 +9,14 @@
 
       <form class="card card-md" @submit.prevent="handleLogin">
         <div class="card-body">
-          <h1 class="text-center mb-4">
+          <h1 class="text-center">
             <a href="#">
-              <img
-                src="/static/logo.svg"
-                width="110"
-                height="32"
-                alt="Tabler"
-                class="navbar-brand-image"
-              />
+              <img src="/static/logo.svg" height="90" alt="Tabler" class="navbar-brand-image" />
+              <h1>Neko App</h1>
             </a>
           </h1>
 
-          <h2 class="card-title text-center mb-4">Login to your account</h2>
+          <h2 class="card-title text-center">Login to your account</h2>
 
           <div class="mb-3">
             <label class="form-label">Email address</label>
@@ -92,7 +87,9 @@
         </div>
       </form>
 
-      <div class="text-center text-muted mt-3">Don’t have account yet? <a href="#">Sign up</a></div>
+      <div class="text-center text-muted mt-3">
+        Don't have account yet? <a href="#" @click.prevent="goToSignUp">Sign up</a>
+      </div>
     </div>
   </div>
 </template>
