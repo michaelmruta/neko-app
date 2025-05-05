@@ -22,14 +22,74 @@ const router = createRouter({
             meta: { requiresAuth: false }
         },
         {
+            path: '/contact',
+            component: () => import('../layouts/DashboardLayout.vue'),
+            meta: { requiresAuth: false },
+            children: [{
+                path: '',
+                name: 'Contact List',
+                component: () => import('../views/contact/list.vue')
+            }, {
+                path: '/contact/edit',
+                name: 'Contact Edit',
+                component: () => import('../views/contact/edit.vue')
+            }]
+        },
+        {
             path: '/customer',
             name: 'customer',
             component: () => import('../layouts/DashboardLayout.vue'),
             meta: { requiresAuth: false },
             children: [{
                 path: '',
-                name: 'customer-list',
+                name: 'Customers List',
                 component: () => import('../views/customer/list.vue')
+            }, {
+                path: '/customer/edit',
+                name: 'Customers Edit',
+                component: () => import('../views/customer/edit.vue')
+            }]
+        },
+        {
+            path: '/customer',
+            component: () => import('../layouts/DashboardLayout.vue'),
+            meta: { requiresAuth: false },
+            children: [{
+                path: '',
+                name: 'Customer List',
+                component: () => import('../views/customer/list.vue')
+            }, {
+                path: '/customer/edit',
+                name: 'Customer Edit',
+                component: () => import('../views/customer/edit.vue')
+            }]
+        },
+        {
+            path: '/lead',
+            component: () => import('../layouts/DashboardLayout.vue'),
+            meta: { requiresAuth: false },
+            children: [{
+                path: '',
+                name: 'Lead List',
+                component: () => import('../views/lead/list.vue')
+            }, {
+                path: '/lead/edit',
+                name: 'Lead Edit',
+                component: () => import('../views/lead/edit.vue')
+            }]
+        },
+        {
+            path: '/opportunity',
+            component: () => import('../layouts/DashboardLayout.vue'),
+            meta: { requiresAuth: false },
+            children: [{
+                path: '',
+                name: 'Opportunity List',
+                component: () => import('../views/opportunity/list.vue')
+            }, {
+                path: '/opportunity/edit',
+                name: 'Opportunity Edit',
+                component: () => import('../views/opportunity/edit.vue')
             }]
         },
         {

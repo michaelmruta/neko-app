@@ -1,135 +1,18 @@
 const fs = require("fs");
 const path = require("path");
+const prettier = require("prettier");
 
 const viewsPath = path.join(__dirname, "..", "client", "src", "views");
 const schemaPath = path.join(__dirname, "..", "server", "prisma", "models");
 
-const headerPartial = (title) => `<div class="page-header d-print-none">
-    <div class="container-xl">
-      <div class="row g-2 align-items-center">
-        <div class="col">
-          <h2 class="page-title">{{ name }}</h2>
-        </div>
-        <div class="col-auto ms-auto d-print-none">
-          <div class="btn-list">
-            <button class="btn btn-primary d-none d-sm-inline-block" @click="openAddUserModal">
-              <i class="ti ti-plus"></i>
-              Add ${title}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>`;
-
-const filtersPartial = `<div class="card-body border-bottom py-3">
-          <div class="d-flex">
-            <div class="text-muted">
-              Show
-              <div class="mx-2 d-inline-block">
-                <select class="form-select form-select-sm" v-model="pageSize">
-                  <option value="10">10</option>
-                  <option value="25">25</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                </select>
-              </div>
-              entries
-            </div>
-            <div class="ms-auto text-muted">
-              Search:
-              <div class="ms-2 d-inline-block">
-                <input
-                  type="text"
-                  class="form-control form-control-sm"
-                  v-model="searchQuery"
-                  placeholder="Search users..."
-                />
-              </div>
-            </div>
-          </div>
-        </div>`;
-
-const footerPartial = `<div class="card-footer d-flex align-items-center">
-          <p class="m-0 text-muted">
-            Showing
-            <span>{{ (currentPage - 1) * pageSize + 1 }}</span> to
-            <span>{{ Math.min(currentPage * pageSize, filteredSet.length) }}</span> of
-            <span>{{ filteredSet.length }}</span> entries
-          </p>
-          <ul class="pagination m-0 ms-auto">
-            <li class="page-item" :class="{ disabled: currentPage === 1 }">
-              <button class="page-link" @click="currentPage--" :disabled="currentPage === 1">
-                Previous
-              </button>
-            </li>
-            <li
-              class="page-item"
-              v-for="page in totalPages"
-              :key="page"
-              :class="{ active: currentPage === page }"
-            >
-              <button class="page-link" @click="currentPage = page">
-                {{ page }}
-              </button>
-            </li>
-            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-              <button
-                class="page-link"
-                @click="currentPage++"
-                :disabled="currentPage === totalPages"
-              >
-                Next
-              </button>
-            </li>
-          </ul>
-        </div>`;
-
-const pageWrapper = (title, html) => `<template>
-    ${headerPartial(title)}
-    <div class="page-header d-print-none">
-      <div class="container-xl">
-       <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">${title}</h3>
-          </div>
-          ${filtersPartial}
-          <div class="row g-2 align-items-center">
-            <div class="col">
-              ${html}
-            </div>
-          </div>
-           ${footerPartial}
-        </div>
-       
-      </div>
-    </div>
-  </template>
-  <script>
-    import { ref, computed, onMounted, watch } from 'vue'
-
-    const searchQuery = ref('')
-    const pageSize = ref(10)
-    const currentPage = ref(1)
-    const totalPages = computed(() => {
-      return Math.ceil(filteredSet.value.length / pageSize.value)
-    })
-
-    watch([searchQuery, pageSize], () => {
-      currentPage.value = 1
-    })
-
-    export default {
-      computed: {
-        filteredSet() {
-          return (!searchQuery.value) ? [] : []
-        },
-        name() {
-          return this.$route.name
-        },
-      },
-    }
-  </script>`;
+// Import templates
+const headerTemplate = require("./templates/header.template");
+const headerEditTemplate = require("./templates/header-edit.template");
+const filtersTemplate = require("./templates/filters.template");
+const footerTemplate = require("./templates/footer.template");
+const scriptTemplate = require("./templates/script.template");
+const scriptEditTemplate = require("./templates/script-edit.template");
+const pageTemplate = require("./templates/page.template");
 
 // Map Prisma types to form controls
 const typeToFormControl = {
@@ -223,80 +106,168 @@ function toSentenceCase(str) {
     .join(" ");
 }
 
-function generateForm(model) {
-  let formHtml = `<form>\n`;
+// Helper functions for form field generation
+function generateFormField(field) {
+  const fieldLabel = capitalizeFirstLetter(field.name);
+  const fieldId = field.name;
 
+  switch (field.formControl) {
+    case "checkbox":
+      return generateCheckboxField(fieldId, fieldLabel);
+    case "textarea":
+      return generateTextareaField(fieldId, fieldLabel);
+    case "select":
+      return generateSelectField(fieldId, fieldLabel);
+    default:
+      return generateInputField(fieldId, fieldLabel, field.formControl);
+  }
+}
+
+function generateCheckboxField(id, label) {
+  return (
+    `  <div class="mb-3 form-check">\n` +
+    `    <input type="checkbox" class="form-check-input" id="${id}" v-model="formData.${id}">\n` +
+    `    <label class="form-check-label" for="${id}">${label}</label>\n` +
+    `  </div>\n`
+  );
+}
+
+function generateTextareaField(id, label) {
+  return (
+    `  <div class="mb-3">\n` +
+    `    <label for="${id}" class="form-label">${label}</label>\n` +
+    `    <textarea class="form-control" id="${id}" v-model="formData.${id}" rows="3"></textarea>\n` +
+    `  </div>\n`
+  );
+}
+
+function generateSelectField(id, label) {
+  return (
+    `  <div class="mb-3">\n` +
+    `    <label for="${id}" class="form-label">${label}</label>\n` +
+    `    <select class="form-select" id="${id}" v-model="formData.${id}">\n` +
+    `      <!-- Options to be populated by JavaScript -->\n` +
+    `    </select>\n` +
+    `  </div>\n`
+  );
+}
+
+function generateInputField(id, label, type) {
+  return (
+    `  <div class="mb-3">\n` +
+    `    <label for="${id}" class="form-label">${label}</label>\n` +
+    `    <input type="${type}" class="form-control" id="${id}" v-model="formData.${id}">\n` +
+    `  </div>\n`
+  );
+}
+
+function generateForm(model) {
+  let formHtml = `<form class="p-5" @submit.prevent="saveRecord">\n`;
+
+  // Generate form fields
   model.fields.forEach((field) => {
-    if (field.formControl === "checkbox") {
-      formHtml += `  <div class="mb-3 form-check">
-    <input type="checkbox" class="form-check-input" id="${field.name}" name="${
-        field.name
-      }">
-    <label class="form-check-label" for="${field.name}">${capitalizeFirstLetter(
-        field.name
-      )}</label>
-  </div>\n`;
-    } else if (field.formControl === "textarea") {
-      formHtml += `  <div class="mb-3">
-    <label for="${field.name}" class="form-label">${capitalizeFirstLetter(
-        field.name
-      )}</label>
-    <textarea class="form-control" id="${field.name}" name="${
-        field.name
-      }" rows="3"></textarea>
-  </div>\n`;
-    } else if (field.formControl === "select") {
-      formHtml += `  <div class="mb-3">
-    <label for="${field.name}" class="form-label">${capitalizeFirstLetter(
-        field.name
-      )}</label>
-    <select class="form-select" id="${field.name}" name="${field.name}">
-      <!-- Options to be populated by JavaScript -->
-    </select>
-  </div>\n`;
-    } else {
-      formHtml += `  <div class="mb-3">
-    <label for="${field.name}" class="form-label">${capitalizeFirstLetter(
-        field.name
-      )}</label>
-    <input type="${field.formControl}" class="form-control" id="${
-        field.name
-      }" name="${field.name}">
-  </div>\n`;
-    }
+    formHtml += generateFormField(field);
   });
+
+  // Add submit and cancel buttons
+  formHtml +=
+    `  <div class="d-flex justify-content-between mt-4">\n` +
+    `    <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>\n` +
+    `    <button type="submit" class="btn btn-primary" :disabled="isLoading">\n` +
+    `      <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>\n` +
+    `      {{ isNewRecord ? 'Create' : 'Update' }}\n` +
+    `    </button>\n` +
+    `  </div>\n`;
 
   formHtml += `</form>`;
 
-  return pageWrapper(model.name, formHtml);
+  return pageTemplate(
+    model.name,
+    formHtml,
+    headerEditTemplate,
+    "",
+    "",
+    scriptEditTemplate
+  );
 }
 
 function generateTable(model) {
-  let tableHtml = `<table class="table">
-  <thead>
-    <tr>\n`;
+  let tableHtml = `<table class="table"><thead><tr>`;
 
   model.fields.forEach((field) => {
-    tableHtml += `<th scope="col">${toSentenceCase(field.name)}</th>\n`;
+    tableHtml += `<th scope="col">${toSentenceCase(field.name)}</th>`;
   });
 
-  tableHtml += `</tr>
-  </thead>
-  <tbody>
-    <!-- Table rows to be populated by JavaScript -->
-  </tbody>
-</table>`;
+  tableHtml += `<th scope="col">Actions</th>
+          </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in items" :key="item.id">
+          ${model.fields
+            .map(
+              (field) => `
+          <td>{{ item.${field.name} }}</td>`
+            )
+            .join("")}
+          <td>
+            <div class="btn-list flex-nowrap">
+              <button class="btn btn-sm btn-outline-primary" @click="edit(item)">
+                <i class="ti ti-edit"></i>
+                Edit
+              </button>
+              <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(item)">
+                <i class="ti ti-trash"></i>
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>`;
 
-  return pageWrapper(model.name, tableHtml);
+  return pageTemplate(
+    model.name,
+    tableHtml,
+    headerTemplate,
+    filtersTemplate,
+    footerTemplate,
+    scriptTemplate
+  );
+}
+
+async function formatVueFile(content) {
+  try {
+    // Get prettier config from client directory
+    const prettierConfig = await prettier.resolveConfig(
+      path.join(__dirname, "..", "client", ".prettierrc.json")
+    );
+
+    // Format the content using prettier
+    return prettier.format(content, {
+      ...prettierConfig,
+      parser: "vue",
+    });
+  } catch (error) {
+    console.error("Error formatting Vue file:", error);
+    return content; // Return original content if formatting fails
+  }
 }
 
 fs.readdir(schemaPath, (err, files) => {
   if (err) {
     console.error("Error reading dir file:", err);
+    return;
   }
+
+  // Ensure templates directory exists
+  const templatesDir = path.join(__dirname, "templates");
+  if (!fs.existsSync(templatesDir)) {
+    fs.mkdirSync(templatesDir, { recursive: true });
+  }
+
   for (let file of files) {
     if (file.includes(".prisma")) {
-      fs.readFile(path.join(schemaPath, file), "utf8", (err, data) => {
+      fs.readFile(path.join(schemaPath, file), "utf8", async (err, data) => {
         if (err) {
           console.error("Error reading the file:", err);
           return;
@@ -308,7 +279,7 @@ fs.readdir(schemaPath, (err, files) => {
         console.log(models);
         // Generate Bootstrap HTML for each model
 
-        const html = models.map((model) => {
+        for (const model of models) {
           const dirPath = path.join(`${viewsPath}`, model.name.toLowerCase());
 
           console.log(dirPath);
@@ -316,21 +287,24 @@ fs.readdir(schemaPath, (err, files) => {
             fs.mkdirSync(dirPath, { recursive: true });
           }
 
+          // Generate and format edit.vue
+          const editContent = generateForm(model);
+          const formattedEditContent = await formatVueFile(editContent);
           fs.writeFileSync(
             `${viewsPath}/${model.name?.toLowerCase()}/edit.vue`,
-            generateForm(model),
-            {
-              encoding: "utf-8",
-            }
+            formattedEditContent,
+            { encoding: "utf-8" }
           );
+
+          // Generate and format list.vue
+          const listContent = generateTable(model);
+          const formattedListContent = await formatVueFile(listContent);
           fs.writeFileSync(
             `${viewsPath}/${model.name?.toLowerCase()}/list.vue`,
-            generateTable(model),
-            {
-              encoding: "utf-8",
-            }
+            formattedListContent,
+            { encoding: "utf-8" }
           );
-        });
+        }
       });
     }
   }

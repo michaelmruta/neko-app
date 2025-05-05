@@ -3,13 +3,13 @@
     <div class="container-xl">
       <div class="row g-2 align-items-center">
         <div class="col">
-          <h2 class="page-title">Users Management</h2>
+          <h2 class="page-title">Users List</h2>
         </div>
         <div class="col-auto ms-auto d-print-none">
           <div class="btn-list">
-            <button class="btn btn-primary d-none d-sm-inline-block" @click="openAddUserModal">
+            <button class="btn btn-primary d-none d-sm-inline-block" @click="openAddRecordModal">
               <i class="ti ti-plus"></i>
-              Add user
+              Add User
             </button>
           </div>
         </div>
@@ -43,9 +43,11 @@
               <div class="ms-2 d-inline-block">
                 <input
                   type="text"
+                  name="Search"
                   class="form-control form-control-sm"
                   v-model="searchQuery"
                   placeholder="Search users..."
+                  value=""
                 />
               </div>
             </div>
@@ -136,9 +138,9 @@
   <!-- Add/Edit User Modal -->
   <div
     class="modal modal-blur fade"
-    :class="{ show: showUserModal }"
+    :class="{ show: showRecordModal }"
     tabindex="-1"
-    :style="showUserModal ? 'display: block;' : ''"
+    :style="showRecordModal ? 'display: block;' : ''"
   >
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
@@ -152,7 +154,7 @@
             <input
               type="text"
               class="form-control"
-              v-model="currentUser.name"
+              v-model="currentRecord.name"
               placeholder="User name"
             />
           </div>
@@ -161,7 +163,7 @@
             <input
               type="email"
               class="form-control"
-              v-model="currentUser.email"
+              v-model="currentRecord.email"
               placeholder="Email address"
             />
           </div>
@@ -170,13 +172,13 @@
             <input
               type="password"
               class="form-control"
-              v-model="currentUser.password"
+              v-model="currentRecord.password"
               placeholder="Password"
             />
           </div>
           <div class="mb-3">
             <label class="form-label">Role</label>
-            <select class="form-select" v-model="currentUser.role">
+            <select class="form-select" v-model="currentRecord.role">
               <option value="USER">User</option>
               <option value="ADMIN">Admin</option>
               <option value="MODERATOR">Moderator</option>
@@ -184,7 +186,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Status</label>
-            <select class="form-select" v-model="currentUser.status">
+            <select class="form-select" v-model="currentRecord.status">
               <option value="ACTIVE">Active</option>
               <option value="INACTIVE">Inactive</option>
               <option value="SUSPENDED">Suspended</option>
@@ -203,7 +205,7 @@
         </div>
       </div>
     </div>
-    <div class="modal-backdrop fade show" v-if="showUserModal" style="z-index: -1"></div>
+    <div class="modal-backdrop fade show" v-if="showRecordModal" style="z-index: -1"></div>
   </div>
 
   <!-- Delete Confirmation Modal -->
@@ -240,25 +242,16 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 
 // Mock data for users - in a real app, this would come from an API
-const users = ref([
-  {
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    status: 'ACTIVE',
-    role: 'ADMIN',
-    createdAt: '2023-01-15T10:30:00Z',
-  },
-])
+const users = ref([])
 
 // UI state
 const searchQuery = ref('')
 const pageSize = ref(10)
 const currentPage = ref(1)
-const showUserModal = ref(false)
+const showRecordModal = ref(false)
 const showDeleteModal = ref(false)
 const isEditing = ref(false)
-const currentUser = ref({
+const currentRecord = ref({
   name: '',
   email: '',
   password: '',
@@ -308,8 +301,8 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString()
 }
 
-function openAddUserModal() {
-  currentUser.value = {
+function openAddRecordModal() {
+  currentRecord.value = {
     name: '',
     email: '',
     password: '',
@@ -317,31 +310,31 @@ function openAddUserModal() {
     status: 'ACTIVE',
   }
   isEditing.value = false
-  showUserModal.value = true
+  showRecordModal.value = true
 }
 
 function editUser(user) {
-  currentUser.value = { ...user }
+  currentRecord.value = { ...user }
   isEditing.value = true
-  showUserModal.value = true
+  showRecordModal.value = true
 }
 
 function closeUserModal() {
-  showUserModal.value = false
+  showRecordModal.value = false
 }
 
 function saveUser() {
   if (isEditing.value) {
     // Update existing user
-    const index = users.value.findIndex((u) => u.id === currentUser.value.id)
+    const index = users.value.findIndex((u) => u.id === currentRecord.value.id)
     if (index !== -1) {
-      users.value[index] = { ...currentUser.value }
+      users.value[index] = { ...currentRecord.value }
     }
   } else {
     // Add new user
     const newId = Math.max(0, ...users.value.map((u) => u.id)) + 1
     users.value.push({
-      ...currentUser.value,
+      ...currentRecord.value,
       id: newId,
       createdAt: new Date().toISOString(),
     })
@@ -362,7 +355,8 @@ function closeDeleteModal() {
 
 function deleteUser() {
   if (userToDelete.value) {
-    users.value = users.value.filter((u) => u.id !== userToDelete.value.id)
+    // #TODO call api
+    // reload page
     closeDeleteModal()
   }
 }
@@ -376,7 +370,7 @@ const authStore = useAuthStore()
 
 onMounted(async () => {
   try {
-    const { data } = await authStore.getUsers(currentPage.value, pageSize.value)
+    const data = await authStore.getList('users', currentPage.value, pageSize.value)
     users.value = data.results
   } catch (error) {
     console.error('Failed to fetch users:', error)
@@ -385,8 +379,8 @@ onMounted(async () => {
 
 watch([currentPage, pageSize], async () => {
   try {
-    const { data } = await authStore.getUsers(currentPage.value, pageSize.value)
-    users.value = data.results
+    const data = await authStore.getList('users', currentPage.value, pageSize.value)
+    users.value = data.users
   } catch (error) {
     console.error('Failed to fetch users:', error)
   }

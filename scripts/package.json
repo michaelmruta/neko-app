@@ -1,6 +1,11 @@
 {
+  "scripts": {
+    "watch-templates": "node ../scripts/watch-templates.js",
+    "generate-ui": "node ../scripts/generate-ui.js"
+  },
   "devDependencies": {
     "@vue/eslint-config-prettier": "^10.2.0",
+    "chokidar": "^4.0.3",
     "prettier": "^3.5.3"
   }
 }

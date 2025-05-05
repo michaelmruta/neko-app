@@ -38,6 +38,18 @@
             </li>
             <li class="nav-item">
               <router-link
+                to="/contact"
+                class="nav-link"
+                :class="{ active: $route.path === '/contact' }"
+              >
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-user"></i>
+                </span>
+                <span class="nav-link-title">Contact</span>
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link
                 to="/customer"
                 class="nav-link"
                 :class="{ active: $route.path === '/customer' }"
@@ -46,6 +58,26 @@
                   <i class="ti ti-user"></i>
                 </span>
                 <span class="nav-link-title">Customer</span>
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/lead" class="nav-link" :class="{ active: $route.path === '/lead' }">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-user"></i>
+                </span>
+                <span class="nav-link-title">Lead</span>
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link
+                to="/opportunity"
+                class="nav-link"
+                :class="{ active: $route.path === '/opportunity' }"
+              >
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-user"></i>
+                </span>
+                <span class="nav-link-title">Opportunity</span>
               </router-link>
             </li>
             <li class="nav-item">

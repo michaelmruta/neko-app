@@ -3,10 +3,17 @@
   "compounds": [
     {
       "name": "Launch Services",
-      "configurations": ["Server", "Client", "Chrome"]
+      "configurations": ["Server", "Client", "Chrome", "Watch Templates"]
     }
   ],
   "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Watch Templates",
+      "program": "${workspaceFolder}/scripts/watch-templates.js",
+      "cwd": "${workspaceFolder}"
+    },
     {
       "name": "Chrome",
       "request": "launch",

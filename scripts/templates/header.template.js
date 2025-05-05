@@ -1,0 +1,17 @@
+module.exports = (title) => `<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <h2 class="page-title">{{ name }}</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <button class="btn btn-primary d-none d-sm-inline-block" @click="openAddRecordModal">
+            <i class="ti ti-plus"></i>
+            Add ${title}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`;
