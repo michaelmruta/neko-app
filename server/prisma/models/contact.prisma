@@ -1,11 +1,17 @@
-
 model Contact {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   firstName  String
   lastName   String
-  email      String?  @unique
+  gender     String?
+  street     String?
+  city       String?
+  state      String?
+  zip        String?
+  company    String?
+  birthday   DateTime?
+  email      String?   @unique
   phone      String?
   position   String?
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customer   Customer  @relation(fields: [customerId], references: [id])
   customerId Int
 }

@@ -6,6 +6,9 @@ module.exports = (model) =>
 
     export default {
       setup() {
+        // const isDev = ref(process.env.NODE_ENV === 'development');
+        const isDev = ref(false);
+
         // Router and store setup
         const router = useRouter();
         const route = useRoute();
@@ -41,6 +44,7 @@ module.exports = (model) =>
             errorMessage.value = '';
             
             const response = await authStore.getItem('${model?.toLowerCase()}', id);
+            console.log('Fetched record:', response);
             formData.value = response.data || {};
           } catch (error) {
             errorMessage.value = 'Failed to load record: ' + (error.message || 'Unknown error');
@@ -87,8 +91,17 @@ module.exports = (model) =>
           router.push(\`/${model?.toLowerCase()}\`);
         }
 
+        function formatDateTime(dateValue) {
+          if (!dateValue) return '';
+          const date = dateValue instanceof Date ? dateValue : new Date(dateValue);          
+          if (isNaN(date.getTime())) return '';          
+          return date.toISOString().slice(0, 16);
+        }
+
         // Expose to template
         return {
+          isDev,
+
           // State
           formData,
           isLoading,
@@ -97,7 +110,13 @@ module.exports = (model) =>
           
           // Methods
           saveRecord,
-          cancel
+          cancel,
+          formatDateTime
+        }
+      },
+      computed: {
+        id() {
+          return this.$route.query.id;
         }
       }
     }

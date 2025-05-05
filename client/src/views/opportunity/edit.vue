@@ -1,99 +1,81 @@
 <template>
   <div class="page-header d-print-none">
     <div class="container-xl">
-      <div class="row g-2 align-items-center">
-        <div class="col">
-          <h2 class="page-title">{{ name }}</h2>
-        </div>
-        <div class="col-auto ms-auto d-print-none">
-          <div class="btn-list">
-            <button class="btn btn-danger d-none d-sm-inline-block" @click="cancel">
-              <i class="ti ti-plus"></i>
-              Cancel
-            </button>
-            <button class="btn btn-primary d-none d-sm-inline-block" @click="save">
-              <i class="ti ti-plus"></i>
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="page-header d-print-none">
-    <div class="container-xl">
       <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Opportunity</h3>
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="card-title">Opportunity</h4>
+          <h3 class="card-title">{{ id ? '#' + id : '' }}</h3>
         </div>
 
         <div class="row g-2 align-items-center">
           <div class="col">
-            <form class="p-5" @submit.prevent="saveRecord">
-              <div class="mb-3">
-                <label for="id" class="form-label">Id</label>
-                <input type="number" class="form-control" id="id" v-model="formData.id" />
+            <form @submit.prevent="saveRecord">
+              <div class="row">
+                <div class="col-sm-12 col-md-6 px-5 py-2">
+                  <label for="title" class="form-label">Title text</label>
+                  <input type="text" class="form-control" id="title" v-model="formData.title" />
+                </div>
+                <div class="col-sm-12 col-md-6 px-5 py-2">
+                  <label for="description" class="form-label">Description</label>
+                  <textarea
+                    class="form-control"
+                    id="description"
+                    v-model="formData.description"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="col-sm-12 col-md-6 px-5 py-2">
+                  <label for="amount" class="form-label">Amount number</label>
+                  <input type="number" class="form-control" id="amount" v-model="formData.amount" />
+                </div>
+                <div class="col-sm-12 col-md-6 px-5 py-2">
+                  <label for="stage" class="form-label">Stage text</label>
+                  <input type="text" class="form-control" id="stage" v-model="formData.stage" />
+                </div>
+                <div class="col-sm-12 col-md-6 px-5 py-2">
+                  <label for="customer" class="form-label">Customer</label>
+                  <select class="form-select" id="customer" v-model="formData.customer">
+                    <!-- Options to be populated by JavaScript -->
+                  </select>
+                </div>
+                <div class="col-sm-12 col-md-6 px-5 py-2">
+                  <label for="customerId" class="form-label">Customer Id number</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="customerId"
+                    v-model="formData.customerId"
+                  />
+                </div>
+                <div class="col-sm-12 col-md-6 px-5 py-2">
+                  <label for="createdAt" class="form-label">Created At datetime-local</label>
+                  <input
+                    type="datetime-local"
+                    class="form-control"
+                    id="createdAt"
+                    :value="formatDateTime(formData.createdAt)"
+                  />
+                </div>
+                <div class="col-sm-12 col-md-6 px-5 py-2">
+                  <label for="updatedAt" class="form-label">Updated At datetime-local</label>
+                  <input
+                    type="datetime-local"
+                    class="form-control"
+                    id="updatedAt"
+                    :value="formatDateTime(formData.updatedAt)"
+                  />
+                </div>
               </div>
-              <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control" id="title" v-model="formData.title" />
-              </div>
-              <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea
-                  class="form-control"
-                  id="description"
-                  v-model="formData.description"
-                  rows="3"
-                ></textarea>
-              </div>
-              <div class="mb-3">
-                <label for="amount" class="form-label">Amount</label>
-                <input type="number" class="form-control" id="amount" v-model="formData.amount" />
-              </div>
-              <div class="mb-3">
-                <label for="stage" class="form-label">Stage</label>
-                <input type="text" class="form-control" id="stage" v-model="formData.stage" />
-              </div>
-              <div class="mb-3">
-                <label for="customer" class="form-label">Customer</label>
-                <select class="form-select" id="customer" v-model="formData.customer">
-                  <!-- Options to be populated by JavaScript -->
-                </select>
-              </div>
-              <div class="mb-3">
-                <label for="customerId" class="form-label">CustomerId</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  id="customerId"
-                  v-model="formData.customerId"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="createdAt" class="form-label">CreatedAt</label>
-                <input
-                  type="datetime-local"
-                  class="form-control"
-                  id="createdAt"
-                  v-model="formData.createdAt"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="updatedAt" class="form-label">UpdatedAt</label>
-                <input
-                  type="datetime-local"
-                  class="form-control"
-                  id="updatedAt"
-                  v-model="formData.updatedAt"
-                />
-              </div>
-              <div class="d-flex justify-content-between mt-4">
+              <div class="d-flex justify-content-between mt-4 card-footer">
                 <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>
                 <button type="submit" class="btn btn-primary" :disabled="isLoading">
                   <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
                   {{ isNewRecord ? 'Create' : 'Update' }}
                 </button>
+              </div>
+              <div v-if="isDev" class="p-3 rounded bg-light">
+                <h5>Form Data (Debug):</h5>
+                <pre class="mb-0">{{ JSON.stringify(formData, null, 2) }}</pre>
               </div>
             </form>
           </div>
@@ -138,6 +120,9 @@ import { useRouter, useRoute } from 'vue-router'
 
 export default {
   setup() {
+    // const isDev = ref(process.env.NODE_ENV === 'development');
+    const isDev = ref(false)
+
     // Router and store setup
     const router = useRouter()
     const route = useRoute()
@@ -173,6 +158,7 @@ export default {
         errorMessage.value = ''
 
         const response = await authStore.getItem('opportunity', id)
+        console.log('Fetched record:', response)
         formData.value = response.data || {}
       } catch (error) {
         errorMessage.value = 'Failed to load record: ' + (error.message || 'Unknown error')
@@ -215,8 +201,17 @@ export default {
       router.push(`/opportunity`)
     }
 
+    function formatDateTime(dateValue) {
+      if (!dateValue) return ''
+      const date = dateValue instanceof Date ? dateValue : new Date(dateValue)
+      if (isNaN(date.getTime())) return ''
+      return date.toISOString().slice(0, 16)
+    }
+
     // Expose to template
     return {
+      isDev,
+
       // State
       formData,
       isLoading,
@@ -226,7 +221,13 @@ export default {
       // Methods
       saveRecord,
       cancel,
+      formatDateTime,
     }
+  },
+  computed: {
+    id() {
+      return this.$route.query.id
+    },
   },
 }
 </script>

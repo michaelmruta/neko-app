@@ -1,4 +1,4 @@
-module.exports = (title) => `<div class="page-header d-print-none">
+module.exports = (model) => `<div class="page-header d-print-none">
   <div class="container-xl">
     <div class="row g-2 align-items-center">
       <div class="col">
@@ -8,7 +8,7 @@ module.exports = (title) => `<div class="page-header d-print-none">
         <div class="btn-list">
           <button class="btn btn-primary d-none d-sm-inline-block" @click="openAddRecordModal">
             <i class="ti ti-plus"></i>
-            Add ${title}
+            Add ${model}
           </button>
         </div>
       </div>

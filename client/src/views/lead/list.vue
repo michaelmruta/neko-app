@@ -19,8 +19,9 @@
   <div class="page-header d-print-none">
     <div class="container-xl">
       <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Lead</h3>
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="card-title">Lead</h4>
+          <h3 class="card-title">{{ id ? '#' + id : '' }}</h3>
         </div>
         <div class="card-body border-bottom py-3">
           <div class="d-flex">
@@ -51,45 +52,47 @@
         </div>
         <div class="row g-2 align-items-center">
           <div class="col">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Id</th>
-                  <th scope="col">Name</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Phone</th>
-                  <th scope="col">Company</th>
-                  <th scope="col">Source</th>
-                  <th scope="col">Created At</th>
-                  <th scope="col">Updated At</th>
-                  <th scope="col">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in items" :key="item.id">
-                  <td>{{ item.id }}</td>
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.email }}</td>
-                  <td>{{ item.phone }}</td>
-                  <td>{{ item.company }}</td>
-                  <td>{{ item.source }}</td>
-                  <td>{{ item.createdAt }}</td>
-                  <td>{{ item.updatedAt }}</td>
-                  <td>
-                    <div class="btn-list flex-nowrap">
-                      <button class="btn btn-sm btn-outline-primary" @click="edit(item)">
-                        <i class="ti ti-edit"></i>
-                        Edit
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(item)">
-                        <i class="ti ti-trash"></i>
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Company</th>
+                    <th scope="col">Source</th>
+                    <th scope="col">Created At</th>
+                    <th scope="col">Updated At</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in items" :key="item.id">
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.email }}</td>
+                    <td>{{ item.phone }}</td>
+                    <td>{{ item.company }}</td>
+                    <td>{{ item.source }}</td>
+                    <td>{{ item.createdAt }}</td>
+                    <td>{{ item.updatedAt }}</td>
+                    <td>
+                      <div class="btn-list flex-nowrap">
+                        <button class="btn btn-sm btn-outline-primary" @click="edit(item)">
+                          <i class="ti ti-edit"></i>
+                          Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(item)">
+                          <i class="ti ti-trash"></i>
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
         <div class="card-footer d-flex align-items-center">

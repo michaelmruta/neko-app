@@ -1,4 +1,4 @@
-module.exports = `<div class="card-body border-bottom py-3">
+module.exports = (model) => `<div class="card-body border-bottom py-3">
   <div class="d-flex">
     <div class="text-muted">
       Show

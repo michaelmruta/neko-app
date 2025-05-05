@@ -1,4 +1,4 @@
-module.exports = `<div class="card-footer d-flex align-items-center">
+module.exports = (model) => `<div class="card-footer d-flex align-items-center">
   <p class="m-0 text-muted">
     Showing
     <span>{{ (currentPage - 1) * pageSize + 1 }}</span> to

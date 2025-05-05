@@ -27,7 +27,7 @@ const router = createRouter({
             meta: { requiresAuth: false },
             children: [{
                 path: '',
-                name: 'Contact List',
+                name: 'Contacts List',
                 component: () => import('../views/contact/list.vue')
             }, {
                 path: '/contact/edit',
@@ -46,20 +46,6 @@ const router = createRouter({
                 component: () => import('../views/customer/list.vue')
             }, {
                 path: '/customer/edit',
-                name: 'Customers Edit',
-                component: () => import('../views/customer/edit.vue')
-            }]
-        },
-        {
-            path: '/customer',
-            component: () => import('../layouts/DashboardLayout.vue'),
-            meta: { requiresAuth: false },
-            children: [{
-                path: '',
-                name: 'Customer List',
-                component: () => import('../views/customer/list.vue')
-            }, {
-                path: '/customer/edit',
                 name: 'Customer Edit',
                 component: () => import('../views/customer/edit.vue')
             }]
@@ -70,7 +56,7 @@ const router = createRouter({
             meta: { requiresAuth: false },
             children: [{
                 path: '',
-                name: 'Lead List',
+                name: 'Leads List',
                 component: () => import('../views/lead/list.vue')
             }, {
                 path: '/lead/edit',
@@ -84,7 +70,7 @@ const router = createRouter({
             meta: { requiresAuth: false },
             children: [{
                 path: '',
-                name: 'Opportunity List',
+                name: 'Opportunities List',
                 component: () => import('../views/opportunity/list.vue')
             }, {
                 path: '/opportunity/edit',

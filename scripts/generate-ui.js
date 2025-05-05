@@ -7,7 +7,6 @@ const schemaPath = path.join(__dirname, "..", "server", "prisma", "models");
 
 // Import templates
 const headerTemplate = require("./templates/header.template");
-const headerEditTemplate = require("./templates/header-edit.template");
 const filtersTemplate = require("./templates/filters.template");
 const footerTemplate = require("./templates/footer.template");
 const scriptTemplate = require("./templates/script.template");
@@ -124,75 +123,86 @@ function generateFormField(field) {
 }
 
 function generateCheckboxField(id, label) {
-  return (
-    `  <div class="mb-3 form-check">\n` +
-    `    <input type="checkbox" class="form-check-input" id="${id}" v-model="formData.${id}">\n` +
-    `    <label class="form-check-label" for="${id}">${label}</label>\n` +
-    `  </div>\n`
-  );
+  return `  <div class="col-sm-12 col-md-6 px-5 py-2">
+    <div class="form-check">
+      <input type="checkbox" class="form-check-input" id="${id}" v-model="formData.${id}">
+      <label class="form-check-label" for="${id}">${toSentenceCase(label)}</label>
+    </div>
+  </div>
+`;
 }
 
 function generateTextareaField(id, label) {
-  return (
-    `  <div class="mb-3">\n` +
-    `    <label for="${id}" class="form-label">${label}</label>\n` +
-    `    <textarea class="form-control" id="${id}" v-model="formData.${id}" rows="3"></textarea>\n` +
-    `  </div>\n`
-  );
+  return `  <div class="col-sm-12 col-md-6 px-5 py-2">
+    <label for="${id}" class="form-label">${toSentenceCase(label)}</label>
+    <textarea class="form-control" id="${id}" v-model="formData.${id}" rows="3"></textarea>
+  </div>
+`;
 }
 
 function generateSelectField(id, label) {
-  return (
-    `  <div class="mb-3">\n` +
-    `    <label for="${id}" class="form-label">${label}</label>\n` +
-    `    <select class="form-select" id="${id}" v-model="formData.${id}">\n` +
-    `      <!-- Options to be populated by JavaScript -->\n` +
-    `    </select>\n` +
-    `  </div>\n`
-  );
+  return `  <div class="col-sm-12 col-md-6 px-5 py-2">
+    <label for="${id}" class="form-label">${label}</label>
+    <select class="form-select" id="${id}" v-model="formData.${id}">
+      <!-- Options to be populated by JavaScript -->
+    </select>
+  </div>
+`;
 }
 
 function generateInputField(id, label, type) {
-  return (
-    `  <div class="mb-3">\n` +
-    `    <label for="${id}" class="form-label">${label}</label>\n` +
-    `    <input type="${type}" class="form-control" id="${id}" v-model="formData.${id}">\n` +
-    `  </div>\n`
-  );
+  return `  <div class="col-sm-12 col-md-6 px-5 py-2">
+    <label for="${id}" class="form-label">${toSentenceCase(label)} ${type}</label>
+    <input type="${type}" class="form-control" id="${id}" 
+      ${
+        type === "datetime-local"
+          ? `:value="formatDateTime(formData.${id})"`
+          : `v-model="formData.${id}"`
+      } />
+  </div>
+`;
 }
 
 function generateForm(model) {
-  let formHtml = `<form class="p-5" @submit.prevent="saveRecord">\n`;
+  let formHtml = `<form @submit.prevent="saveRecord">
+  <div class="row">
+`;
 
   // Generate form fields
   model.fields.forEach((field) => {
+    if (field.name === "id") return;
     formHtml += generateFormField(field);
   });
 
+  formHtml += `  </div>
+`;
+
   // Add submit and cancel buttons
   formHtml +=
-    `  <div class="d-flex justify-content-between mt-4">\n` +
-    `    <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>\n` +
-    `    <button type="submit" class="btn btn-primary" :disabled="isLoading">\n` +
-    `      <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>\n` +
-    `      {{ isNewRecord ? 'Create' : 'Update' }}\n` +
-    `    </button>\n` +
-    `  </div>\n`;
+    `  <div class="d-flex justify-content-between mt-4 card-footer">` +
+    `    <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>` +
+    `    <button type="submit" class="btn btn-primary" :disabled="isLoading">` +
+    `      <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>` +
+    `      {{ isNewRecord ? 'Create' : 'Update' }}` +
+    `    </button>` +
+    `  </div>
+`;
+
+  // Add debug panel for formData - only visible in development mode
+  formHtml +=
+    `  <div v-if="isDev" class="p-3 rounded bg-light">` +
+    `    <h5>Form Data (Debug):</h5>` +
+    `    <pre class="mb-0">{{ JSON.stringify(formData, null, 2) }}</pre>` +
+    `  </div>
+`;
 
   formHtml += `</form>`;
 
-  return pageTemplate(
-    model.name,
-    formHtml,
-    headerEditTemplate,
-    "",
-    "",
-    scriptEditTemplate
-  );
+  return pageTemplate(model.name, formHtml, scriptEditTemplate);
 }
 
 function generateTable(model) {
-  let tableHtml = `<table class="table"><thead><tr>`;
+  let tableHtml = `<div class="table-responsive"><table class="table"><thead><tr>`;
 
   model.fields.forEach((field) => {
     tableHtml += `<th scope="col">${toSentenceCase(field.name)}</th>`;
@@ -223,15 +233,15 @@ function generateTable(model) {
           </td>
         </tr>
       </tbody>
-    </table>`;
+    </table></div>`;
 
   return pageTemplate(
     model.name,
     tableHtml,
+    scriptTemplate,
     headerTemplate,
     filtersTemplate,
-    footerTemplate,
-    scriptTemplate
+    footerTemplate
   );
 }
 

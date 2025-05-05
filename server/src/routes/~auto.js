@@ -68,7 +68,7 @@ module.exports = function (app) {
         const result = await prisma[req.params.auto].findUnique({
           where: { id: parseInt(req.params.id) },
         });
-        res.json(result);
+        res.json({ data: result });
       } catch (e) {
         res.json({ message: e.message });
       }
