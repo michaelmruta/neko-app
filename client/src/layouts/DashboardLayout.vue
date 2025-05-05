@@ -23,7 +23,7 @@
           </a>
         </h1>
         <div class="collapse navbar-collapse" id="navbar-menu">
-          <ul class="navbar-nav pt-lg-3">
+          <ul class="navbar-nav">
             <li class="nav-item">
               <router-link
                 to="/dashboard"
