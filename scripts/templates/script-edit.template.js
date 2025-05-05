@@ -117,6 +117,12 @@ module.exports = (model) =>
       computed: {
         id() {
           return this.$route.query.id;
+        },
+        name() {
+          return this.$route.name
+        },
+        title() {
+          return this.isNewRecord? 'New ${model}' : 'Edit ${model}'
         }
       }
     }

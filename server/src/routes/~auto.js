@@ -43,6 +43,13 @@ const paginatedResults = (model) => async (req, res, next) => {
 };
 
 module.exports = function (app) {
+  const requireAdmin = (req, res, next) => {
+    console.log(req.session.user);
+    if (!req.session.user || req.session.user.role !== "ADMIN") {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+    next();
+  };
   /**
    * @route GET /api/:auto
    * @desc Get paginated :auto list (Admin only)
@@ -50,7 +57,7 @@ module.exports = function (app) {
    */
   app.get(
     "/api/:auto",
-    // requireAdmin,
+    requireAdmin,
     (req, res, next) => {
       return paginatedResults(prisma[req.params.auto])(req, res, next);
     },
@@ -59,21 +66,17 @@ module.exports = function (app) {
     }
   );
 
-  app.get(
-    "/api/:auto/:id",
-    // requireAdmin,
-    async (req, res) => {
-      try {
-        console.log(req.params);
-        const result = await prisma[req.params.auto].findUnique({
-          where: { id: parseInt(req.params.id) },
-        });
-        res.json({ data: result });
-      } catch (e) {
-        res.json({ message: e.message });
-      }
+  app.get("/api/:auto/:id", requireAdmin, async (req, res) => {
+    try {
+      console.log(req.params);
+      const result = await prisma[req.params.auto].findUnique({
+        where: { id: parseInt(req.params.id) },
+      });
+      res.json({ data: result });
+    } catch (e) {
+      res.json({ message: e.message });
     }
-  );
+  });
 
   return app;
 };

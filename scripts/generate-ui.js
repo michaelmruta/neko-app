@@ -123,7 +123,7 @@ function generateFormField(field) {
 }
 
 function generateCheckboxField(id, label) {
-  return `  <div class="col-sm-12 col-md-6 px-5 py-2">
+  return `<div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
     <div class="form-check">
       <input type="checkbox" class="form-check-input" id="${id}" v-model="formData.${id}">
       <label class="form-check-label" for="${id}">${toSentenceCase(label)}</label>
@@ -133,7 +133,7 @@ function generateCheckboxField(id, label) {
 }
 
 function generateTextareaField(id, label) {
-  return `  <div class="col-sm-12 col-md-6 px-5 py-2">
+  return `<div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
     <label for="${id}" class="form-label">${toSentenceCase(label)}</label>
     <textarea class="form-control" id="${id}" v-model="formData.${id}" rows="3"></textarea>
   </div>
@@ -141,7 +141,7 @@ function generateTextareaField(id, label) {
 }
 
 function generateSelectField(id, label) {
-  return `  <div class="col-sm-12 col-md-6 px-5 py-2">
+  return `<div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
     <label for="${id}" class="form-label">${label}</label>
     <select class="form-select" id="${id}" v-model="formData.${id}">
       <!-- Options to be populated by JavaScript -->
@@ -151,8 +151,8 @@ function generateSelectField(id, label) {
 }
 
 function generateInputField(id, label, type) {
-  return `  <div class="col-sm-12 col-md-6 px-5 py-2">
-    <label for="${id}" class="form-label">${toSentenceCase(label)} ${type}</label>
+  return `<div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+    <label for="${id}" class="form-label">${toSentenceCase(label)}</label>
     <input type="${type}" class="form-control" id="${id}" 
       ${
         type === "datetime-local"
@@ -174,7 +174,7 @@ function generateForm(model) {
     formHtml += generateFormField(field);
   });
 
-  formHtml += `  </div>
+  formHtml += `</div>
 `;
 
   // Add submit and cancel buttons
@@ -198,7 +198,7 @@ function generateForm(model) {
 
   formHtml += `</form>`;
 
-  return pageTemplate(model.name, formHtml, scriptEditTemplate);
+  return pageTemplate(model.name, formHtml, scriptEditTemplate, headerTemplate);
 }
 
 function generateTable(model) {

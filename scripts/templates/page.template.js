@@ -38,7 +38,7 @@ module.exports = (
       <div class="modal-content">
         <div class="modal-body">
           <div class="modal-title">Are you sure?</div>
-          <div>If you proceed, you will delete the record {{ itemToDelete?.name }}.</div>
+          <div>If you proceed, you will delete the record #{{ itemToDelete?.id }}.</div>
         </div>
         <div class="modal-footer">
           <button
@@ -48,7 +48,7 @@ module.exports = (
           >
             Cancel
           </button>
-          <button type="button" class="btn btn-danger" @click="deleteItem">Yes, delete record</button>
+          <button type="button" class="btn btn-danger" @click="deleteRecord">Yes, delete record</button>
         </div>
       </div>
     </div>

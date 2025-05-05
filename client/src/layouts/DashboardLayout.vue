@@ -82,7 +82,19 @@
             </li>
             <li class="nav-item">
               <router-link
-                to="/dashboard/users"
+                to="/product"
+                class="nav-link"
+                :class="{ active: $route.path === '/product' }"
+              >
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <i class="ti ti-shopping-cart"></i>
+                </span>
+                <span class="nav-link-title">Products</span>
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link
+                to="/users"
                 class="nav-link"
                 :class="{ active: $route.path.includes('/users') }"
               >
@@ -94,7 +106,7 @@
             </li>
             <li class="nav-item">
               <router-link
-                to="/dashboard/settings"
+                to="/settings"
                 class="nav-link"
                 :class="{ active: $route.path.includes('/settings') }"
               >

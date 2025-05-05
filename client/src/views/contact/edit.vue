@@ -1,6 +1,27 @@
 <template>
   <div class="page-header d-print-none">
     <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <h2 class="page-title">{{ title }}</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <button
+              v-if="items"
+              class="btn btn-primary d-none d-sm-inline-block"
+              @click="addRecord()"
+            >
+              <i class="ti ti-plus"></i>
+              Add Contact
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-header d-print-none">
+    <div class="container-xl">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h4 class="card-title">Contact</h4>
@@ -11,8 +32,8 @@
           <div class="col">
             <form @submit.prevent="saveRecord">
               <div class="row">
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="firstName" class="form-label">First Name text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="firstName" class="form-label">First Name</label>
                   <input
                     type="text"
                     class="form-control"
@@ -20,8 +41,8 @@
                     v-model="formData.firstName"
                   />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="lastName" class="form-label">Last Name text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="lastName" class="form-label">Last Name</label>
                   <input
                     type="text"
                     class="form-control"
@@ -29,32 +50,32 @@
                     v-model="formData.lastName"
                   />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="gender" class="form-label">Gender text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="gender" class="form-label">Gender</label>
                   <input type="text" class="form-control" id="gender" v-model="formData.gender" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="street" class="form-label">Street text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="street" class="form-label">Street</label>
                   <input type="text" class="form-control" id="street" v-model="formData.street" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="city" class="form-label">City text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="city" class="form-label">City</label>
                   <input type="text" class="form-control" id="city" v-model="formData.city" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="state" class="form-label">State text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="state" class="form-label">State</label>
                   <input type="text" class="form-control" id="state" v-model="formData.state" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="zip" class="form-label">Zip text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="zip" class="form-label">Zip</label>
                   <input type="text" class="form-control" id="zip" v-model="formData.zip" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="company" class="form-label">Company text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="company" class="form-label">Company</label>
                   <input type="text" class="form-control" id="company" v-model="formData.company" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="birthday" class="form-label">Birthday datetime-local</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="birthday" class="form-label">Birthday</label>
                   <input
                     type="datetime-local"
                     class="form-control"
@@ -62,16 +83,16 @@
                     :value="formatDateTime(formData.birthday)"
                   />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="email" class="form-label">Email email</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="email" class="form-label">Email</label>
                   <input type="email" class="form-control" id="email" v-model="formData.email" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="phone" class="form-label">Phone text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="phone" class="form-label">Phone</label>
                   <input type="text" class="form-control" id="phone" v-model="formData.phone" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="position" class="form-label">Position text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="position" class="form-label">Position</label>
                   <input
                     type="text"
                     class="form-control"
@@ -79,14 +100,14 @@
                     v-model="formData.position"
                   />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
                   <label for="customer" class="form-label">Customer</label>
                   <select class="form-select" id="customer" v-model="formData.customer">
                     <!-- Options to be populated by JavaScript -->
                   </select>
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="customerId" class="form-label">Customer Id number</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="customerId" class="form-label">Customer Id</label>
                   <input
                     type="number"
                     class="form-control"
@@ -123,7 +144,7 @@
       <div class="modal-content">
         <div class="modal-body">
           <div class="modal-title">Are you sure?</div>
-          <div>If you proceed, you will delete the record {{ itemToDelete?.name }}.</div>
+          <div>If you proceed, you will delete the record #{{ itemToDelete?.id }}.</div>
         </div>
         <div class="modal-footer">
           <button
@@ -133,7 +154,7 @@
           >
             Cancel
           </button>
-          <button type="button" class="btn btn-danger" @click="deleteItem">
+          <button type="button" class="btn btn-danger" @click="deleteRecord">
             Yes, delete record
           </button>
         </div>
@@ -256,6 +277,12 @@ export default {
   computed: {
     id() {
       return this.$route.query.id
+    },
+    name() {
+      return this.$route.name
+    },
+    title() {
+      return this.isNewRecord ? 'New Contact' : 'Edit Contact'
     },
   },
 }

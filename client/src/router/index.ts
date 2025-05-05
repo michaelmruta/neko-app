@@ -22,16 +22,47 @@ const router = createRouter({
             meta: { requiresAuth: false }
         },
         {
-            path: '/contact',
+            path: '/dashboard',
+            name: 'dashboard',
             component: () => import('../layouts/DashboardLayout.vue'),
-            meta: { requiresAuth: false },
+            meta: { requiresAuth: true },
             children: [{
                 path: '',
-                name: 'Contacts List',
+                name: 'dashboard-home',
+                component: () => import('../views/Dashboard.vue')
+            }]
+        },
+        {
+            path: '/users',
+            component: () => import('../layouts/DashboardLayout.vue'),
+            meta: { requiresAuth: true },
+            children: [{
+                path: '',
+                name: 'users',
+                component: () => import('../views/Users.vue')
+            }]
+        },
+        {
+            path: '/settings',
+            component: () => import('../layouts/DashboardLayout.vue'),
+            meta: { requiresAuth: true },
+            children: [{
+                path: '',
+                name: 'settings',
+                component: () => import('../views/Settings.vue')
+            }]
+        },
+        {
+            path: '/contact',
+            component: () => import('../layouts/DashboardLayout.vue'),
+            meta: { requiresAuth: true },
+            children: [{
+                path: '',
+                name: 'contact-list',
                 component: () => import('../views/contact/list.vue')
             }, {
                 path: '/contact/edit',
-                name: 'Contact Edit',
+                name: 'contact-edit',
                 component: () => import('../views/contact/edit.vue')
             }]
         },
@@ -39,73 +70,70 @@ const router = createRouter({
             path: '/customer',
             name: 'customer',
             component: () => import('../layouts/DashboardLayout.vue'),
-            meta: { requiresAuth: false },
+            meta: { requiresAuth: true },
             children: [{
                 path: '',
-                name: 'Customers List',
+                name: 'customer-list',
                 component: () => import('../views/customer/list.vue')
             }, {
                 path: '/customer/edit',
-                name: 'Customer Edit',
+                name: 'customer-edit',
                 component: () => import('../views/customer/edit.vue')
             }]
         },
         {
             path: '/lead',
             component: () => import('../layouts/DashboardLayout.vue'),
-            meta: { requiresAuth: false },
+            meta: { requiresAuth: true },
             children: [{
                 path: '',
-                name: 'Leads List',
+                name: 'lead-list',
                 component: () => import('../views/lead/list.vue')
             }, {
                 path: '/lead/edit',
-                name: 'Lead Edit',
+                name: 'lead-edit',
                 component: () => import('../views/lead/edit.vue')
             }]
         },
         {
             path: '/opportunity',
             component: () => import('../layouts/DashboardLayout.vue'),
-            meta: { requiresAuth: false },
+            meta: { requiresAuth: true },
             children: [{
                 path: '',
-                name: 'Opportunities List',
+                name: 'opportunity-list',
                 component: () => import('../views/opportunity/list.vue')
             }, {
                 path: '/opportunity/edit',
-                name: 'Opportunity Edit',
+                name: 'opportunity-edit',
                 component: () => import('../views/opportunity/edit.vue')
             }]
         },
         {
-            path: '/dashboard',
-            name: 'dashboard',
+            path: '/product',
             component: () => import('../layouts/DashboardLayout.vue'),
-            // meta: { requiresAuth: true },
-            children: [
-                {
-                    path: '',
-                    name: 'dashboard-home',
-                    component: () => import('../views/Dashboard.vue')
-                },
-                {
-                    path: 'users',
-                    name: 'users',
-                    component: () => import('../views/Users.vue')
-                },
-                {
-                    path: 'settings',
-                    name: 'settings',
-                    component: () => import('../views/Settings.vue')
-                }
-            ]
+            meta: { requiresAuth: true },
+            children: [{
+                path: '',
+                name: 'product-list',
+                component: () => import('../views/product/list.vue')
+            }, {
+                path: '/product/edit',
+                name: 'product-edit',
+                component: () => import('../views/product/edit.vue')
+            }]
         }
     ]
 })
 
 router.beforeEach(async (to, from, next) => {
     const authStore = useAuthStore()
+
+    // Initialize auth state if not already done
+    if (!authStore.isAuthenticated) {
+        await authStore.initializeAuth()
+    }
+
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
 
     try {

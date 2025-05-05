@@ -3,11 +3,15 @@
     <div class="container-xl">
       <div class="row g-2 align-items-center">
         <div class="col">
-          <h2 class="page-title">{{ name }}</h2>
+          <h2 class="page-title">{{ title }}</h2>
         </div>
         <div class="col-auto ms-auto d-print-none">
           <div class="btn-list">
-            <button class="btn btn-primary d-none d-sm-inline-block" @click="openAddRecordModal">
+            <button
+              v-if="items"
+              class="btn btn-primary d-none d-sm-inline-block"
+              @click="addRecord()"
+            >
               <i class="ti ti-plus"></i>
               Add Opportunity
             </button>
@@ -145,7 +149,7 @@
       <div class="modal-content">
         <div class="modal-body">
           <div class="modal-title">Are you sure?</div>
-          <div>If you proceed, you will delete the record {{ itemToDelete?.name }}.</div>
+          <div>If you proceed, you will delete the record #{{ itemToDelete?.id }}.</div>
         </div>
         <div class="modal-footer">
           <button
@@ -155,7 +159,7 @@
           >
             Cancel
           </button>
-          <button type="button" class="btn btn-danger" @click="deleteItem">
+          <button type="button" class="btn btn-danger" @click="deleteRecord">
             Yes, delete record
           </button>
         </div>
@@ -179,10 +183,13 @@ export default {
     const items = ref([])
     const authStore = useAuthStore()
 
-    const showRecordModal = ref(false)
     const isEditing = ref(false)
     const showDeleteModal = ref(false)
     const itemToDelete = ref(null)
+
+    function addRecord() {
+      router.push(`/opportunity/edit`)
+    }
 
     function edit(item) {
       router.push(`/opportunity/edit?id=${item.id}`)
@@ -232,10 +239,6 @@ export default {
       return Math.ceil(filteredSet.value.length / pageSize.value)
     })
 
-    const openAddRecordModal = () => {
-      return true
-    }
-
     watch([searchQuery, pageSize], () => {
       currentPage.value = 1
     })
@@ -259,25 +262,31 @@ export default {
     })
 
     return {
-      searchQuery,
-      pageSize,
-      currentPage,
       items,
       filteredSet,
       paginatedSet,
       totalPages,
-      openAddRecordModal,
-      confirmDelete,
+      searchQuery,
+      pageSize,
+      currentPage,
+
       closeDeleteModal,
+      itemToDelete,
+      showDeleteModal,
+      confirmDelete,
       deleteRecord,
+
       edit,
       isEditing,
-      showRecordModal,
+      addRecord,
     }
   },
   computed: {
     name() {
       return this.$route.name
+    },
+    title() {
+      return 'Opportunity List'
     },
   },
 }

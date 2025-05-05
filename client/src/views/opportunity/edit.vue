@@ -1,6 +1,27 @@
 <template>
   <div class="page-header d-print-none">
     <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <h2 class="page-title">{{ title }}</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <button
+              v-if="items"
+              class="btn btn-primary d-none d-sm-inline-block"
+              @click="addRecord()"
+            >
+              <i class="ti ti-plus"></i>
+              Add Opportunity
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-header d-print-none">
+    <div class="container-xl">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h4 class="card-title">Opportunity</h4>
@@ -11,11 +32,11 @@
           <div class="col">
             <form @submit.prevent="saveRecord">
               <div class="row">
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="title" class="form-label">Title text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="title" class="form-label">Title</label>
                   <input type="text" class="form-control" id="title" v-model="formData.title" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
                   <label for="description" class="form-label">Description</label>
                   <textarea
                     class="form-control"
@@ -24,22 +45,22 @@
                     rows="3"
                   ></textarea>
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="amount" class="form-label">Amount number</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="amount" class="form-label">Amount</label>
                   <input type="number" class="form-control" id="amount" v-model="formData.amount" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="stage" class="form-label">Stage text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="stage" class="form-label">Stage</label>
                   <input type="text" class="form-control" id="stage" v-model="formData.stage" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
                   <label for="customer" class="form-label">Customer</label>
                   <select class="form-select" id="customer" v-model="formData.customer">
                     <!-- Options to be populated by JavaScript -->
                   </select>
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="customerId" class="form-label">Customer Id number</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="customerId" class="form-label">Customer Id</label>
                   <input
                     type="number"
                     class="form-control"
@@ -47,8 +68,8 @@
                     v-model="formData.customerId"
                   />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="createdAt" class="form-label">Created At datetime-local</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="createdAt" class="form-label">Created At</label>
                   <input
                     type="datetime-local"
                     class="form-control"
@@ -56,8 +77,8 @@
                     :value="formatDateTime(formData.createdAt)"
                   />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="updatedAt" class="form-label">Updated At datetime-local</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="updatedAt" class="form-label">Updated At</label>
                   <input
                     type="datetime-local"
                     class="form-control"
@@ -94,7 +115,7 @@
       <div class="modal-content">
         <div class="modal-body">
           <div class="modal-title">Are you sure?</div>
-          <div>If you proceed, you will delete the record {{ itemToDelete?.name }}.</div>
+          <div>If you proceed, you will delete the record #{{ itemToDelete?.id }}.</div>
         </div>
         <div class="modal-footer">
           <button
@@ -104,7 +125,7 @@
           >
             Cancel
           </button>
-          <button type="button" class="btn btn-danger" @click="deleteItem">
+          <button type="button" class="btn btn-danger" @click="deleteRecord">
             Yes, delete record
           </button>
         </div>
@@ -227,6 +248,12 @@ export default {
   computed: {
     id() {
       return this.$route.query.id
+    },
+    name() {
+      return this.$route.name
+    },
+    title() {
+      return this.isNewRecord ? 'New Opportunity' : 'Edit Opportunity'
     },
   },
 }

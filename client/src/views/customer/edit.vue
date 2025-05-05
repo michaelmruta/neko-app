@@ -1,6 +1,27 @@
 <template>
   <div class="page-header d-print-none">
     <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <h2 class="page-title">{{ title }}</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <button
+              v-if="items"
+              class="btn btn-primary d-none d-sm-inline-block"
+              @click="addRecord()"
+            >
+              <i class="ti ti-plus"></i>
+              Add Customer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-header d-print-none">
+    <div class="container-xl">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h4 class="card-title">Customer</h4>
@@ -11,28 +32,28 @@
           <div class="col">
             <form @submit.prevent="saveRecord">
               <div class="row">
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="name" class="form-label">Name text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="name" class="form-label">Name</label>
                   <input type="text" class="form-control" id="name" v-model="formData.name" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="email" class="form-label">Email email</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="email" class="form-label">Email</label>
                   <input type="email" class="form-control" id="email" v-model="formData.email" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="phone" class="form-label">Phone text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="phone" class="form-label">Phone</label>
                   <input type="text" class="form-control" id="phone" v-model="formData.phone" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="website" class="form-label">Website text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="website" class="form-label">Website</label>
                   <input type="text" class="form-control" id="website" v-model="formData.website" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="address" class="form-label">Address text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="address" class="form-label">Address</label>
                   <input type="text" class="form-control" id="address" v-model="formData.address" />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="createdAt" class="form-label">Created At datetime-local</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="createdAt" class="form-label">Created At</label>
                   <input
                     type="datetime-local"
                     class="form-control"
@@ -40,8 +61,8 @@
                     :value="formatDateTime(formData.createdAt)"
                   />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="updatedAt" class="form-label">Updated At datetime-local</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="updatedAt" class="form-label">Updated At</label>
                   <input
                     type="datetime-local"
                     class="form-control"
@@ -49,8 +70,8 @@
                     :value="formatDateTime(formData.updatedAt)"
                   />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="contacts" class="form-label">Contacts text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="contacts" class="form-label">Contacts</label>
                   <input
                     type="text"
                     class="form-control"
@@ -58,8 +79,8 @@
                     v-model="formData.contacts"
                   />
                 </div>
-                <div class="col-sm-12 col-md-6 px-5 py-2">
-                  <label for="opportunities" class="form-label">Opportunities text</label>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="opportunities" class="form-label">Opportunities</label>
                   <input
                     type="text"
                     class="form-control"
@@ -96,7 +117,7 @@
       <div class="modal-content">
         <div class="modal-body">
           <div class="modal-title">Are you sure?</div>
-          <div>If you proceed, you will delete the record {{ itemToDelete?.name }}.</div>
+          <div>If you proceed, you will delete the record #{{ itemToDelete?.id }}.</div>
         </div>
         <div class="modal-footer">
           <button
@@ -106,7 +127,7 @@
           >
             Cancel
           </button>
-          <button type="button" class="btn btn-danger" @click="deleteItem">
+          <button type="button" class="btn btn-danger" @click="deleteRecord">
             Yes, delete record
           </button>
         </div>
@@ -229,6 +250,12 @@ export default {
   computed: {
     id() {
       return this.$route.query.id
+    },
+    name() {
+      return this.$route.name
+    },
+    title() {
+      return this.isNewRecord ? 'New Customer' : 'Edit Customer'
     },
   },
 }

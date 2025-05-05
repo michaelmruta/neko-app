@@ -5,11 +5,15 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Clear existing data
+  await prisma.product.deleteMany({});
   await prisma.opportunity.deleteMany({});
   await prisma.contact.deleteMany({});
   await prisma.lead.deleteMany({});
   await prisma.customer.deleteMany({});
   await prisma.user.deleteMany({});
+
+  // Reset auto-increment counters back to 1
+  await prisma.$executeRaw`DELETE FROM sqlite_sequence WHERE name IN ('Product', 'Opportunity', 'Contact', 'Lead', 'Customer', 'User');`;
 
   // Create admin user
   const adminPassword = await bcrypt.hash("admin@example.com", 10);
@@ -293,6 +297,100 @@ async function main() {
   for (const opportunity of opportunities) {
     await prisma.opportunity.create({
       data: opportunity,
+    });
+  }
+
+  // Create products
+  const productCategories = [
+    "ELECTRONICS",
+    "CLOTHING",
+    "HOME",
+    "OFFICE",
+    "SPORTS",
+    "BEAUTY",
+    "FOOD",
+    "OTHER",
+  ];
+
+  const products = [
+    {
+      name: "Laptop Pro X1",
+      description: "High-performance laptop with 16GB RAM and 512GB SSD",
+      price: 1299.99,
+      sku: "TECH-LP-001",
+      category: productCategories[0],
+      inStock: true,
+      imageUrl: "https://example.com/images/laptop-x1.jpg",
+    },
+    {
+      name: "Wireless Headphones",
+      description:
+        "Noise-cancelling wireless headphones with 20hr battery life",
+      price: 199.99,
+      sku: "TECH-WH-002",
+      category: productCategories[0],
+      inStock: true,
+      imageUrl: "https://example.com/images/headphones.jpg",
+    },
+    {
+      name: "Office Desk Chair",
+      description: "Ergonomic office chair with lumbar support",
+      price: 249.99,
+      sku: "OFF-CH-001",
+      category: productCategories[3],
+      inStock: true,
+      imageUrl: "https://example.com/images/office-chair.jpg",
+    },
+    {
+      name: "Cotton T-Shirt",
+      description: "100% cotton t-shirt, available in multiple colors",
+      price: 24.99,
+      sku: "CL-TS-001",
+      category: productCategories[1],
+      inStock: true,
+      imageUrl: "https://example.com/images/tshirt.jpg",
+    },
+    {
+      name: "Smart Home Hub",
+      description: "Central control for all your smart home devices",
+      price: 129.99,
+      sku: "HOME-SH-001",
+      category: productCategories[2],
+      inStock: false,
+      imageUrl: "https://example.com/images/smart-hub.jpg",
+    },
+    {
+      name: "Yoga Mat",
+      description: "Non-slip yoga mat, perfect for home workouts",
+      price: 39.99,
+      sku: "SP-YM-001",
+      category: productCategories[4],
+      inStock: true,
+      imageUrl: "https://example.com/images/yoga-mat.jpg",
+    },
+    {
+      name: "Moisturizing Face Cream",
+      description: "Hydrating face cream for all skin types",
+      price: 22.99,
+      sku: "BEAUTY-FC-001",
+      category: productCategories[5],
+      inStock: true,
+      imageUrl: "https://example.com/images/face-cream.jpg",
+    },
+    {
+      name: "Organic Coffee Beans",
+      description: "Fair trade organic coffee beans, 1lb bag",
+      price: 14.99,
+      sku: "FOOD-CB-001",
+      category: productCategories[6],
+      inStock: true,
+      imageUrl: "https://example.com/images/coffee-beans.jpg",
+    },
+  ];
+
+  for (const product of products) {
+    await prisma.product.create({
+      data: product,
     });
   }
 

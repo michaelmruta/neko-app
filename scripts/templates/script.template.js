@@ -14,10 +14,13 @@ module.exports = (model) =>
         const items = ref([]);
         const authStore = useAuthStore();
 
-        const showRecordModal = ref(false)
         const isEditing = ref(false)
         const showDeleteModal = ref(false)
         const itemToDelete = ref(null);
+
+        function addRecord() {
+          router.push(\`/${model?.toLowerCase()}/edit\`)
+        }
   
         function edit(item) {
           router.push(\`/${model?.toLowerCase()}/edit?id=\${item.id}\`)
@@ -71,10 +74,6 @@ module.exports = (model) =>
           return Math.ceil(filteredSet.value.length / pageSize.value)
         })
 
-        const openAddRecordModal = () => {
-          return true
-        }
-
         watch([searchQuery, pageSize], () => {
           currentPage.value = 1
         })
@@ -98,25 +97,31 @@ module.exports = (model) =>
         })
 
         return {
-          searchQuery,
-          pageSize,
-          currentPage,
           items,
           filteredSet,
           paginatedSet,
           totalPages,
-          openAddRecordModal,
-          confirmDelete,
+          searchQuery,
+          pageSize,
+          currentPage,
+          
           closeDeleteModal,
+          itemToDelete,
+          showDeleteModal,
+          confirmDelete,
           deleteRecord,
+
           edit,
           isEditing,
-          showRecordModal,
+          addRecord,
         }
       },
       computed: {
         name() {
           return this.$route.name
+        },
+        title() {
+          return '${model} List'
         }
       }
     }
