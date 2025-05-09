@@ -2,8 +2,8 @@ module.exports = (model) => `<div class="card-footer d-flex align-items-center">
   <p class="m-0 text-muted">
     Showing
     <span>{{ (currentPage - 1) * pageSize + 1 }}</span> to
-    <span>{{ Math.min(currentPage * pageSize, filteredSet.length) }}</span> of
-    <span>{{ filteredSet.length }}</span> entries
+    <span>{{ Math.min(currentPage * pageSize, items.length) }}</span> of
+    <span>{{ items.length }}</span> entries
   </p>
   <ul class="pagination m-0 ms-auto">
     <li class="page-item" :class="{ disabled: currentPage === 1 }">

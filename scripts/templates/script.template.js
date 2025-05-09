@@ -11,6 +11,7 @@ module.exports = (model) =>
         const searchQuery = ref('');
         const pageSize = ref(10);
         const currentPage = ref(1);
+        const totalPages = ref(1);
         const items = ref([]);
         const authStore = useAuthStore();
 
@@ -52,26 +53,10 @@ module.exports = (model) =>
           }
         }
 
-        const filteredSet = computed(() => {
-          if (!searchQuery.value) return items.value || []
-
-          const query = searchQuery.value.toLowerCase()
-          return (
-            items.value?.filter(
-              (row) =>
-                row.name.toLowerCase().includes(query)
-            ) || []
-          )
-        })
-
         const paginatedSet = computed(() => {
           const start = (currentPage.value - 1) * pageSize.value
           const end = start + pageSize.value
-          return filteredSet.value.slice(start, end)
-        })
-
-        const totalPages = computed(() => {
-          return Math.ceil(filteredSet.value.length / pageSize.value)
+          return items.value.slice(start, end)
         })
 
         watch([searchQuery, pageSize], () => {
@@ -82,6 +67,7 @@ module.exports = (model) =>
           try {
             const response = await authStore.getList('${model?.toLowerCase()}', currentPage.value, pageSize.value)
             items.value = response.results
+            totalPages.value = response.totalPages
           } catch (error) {
             console.error('Failed to fetch items:', error)
           }
@@ -90,7 +76,8 @@ module.exports = (model) =>
         watch([currentPage, pageSize], async () => {
           try {
             const response = await authStore.getList('${model?.toLowerCase()}', currentPage.value, pageSize.value)
-            items.value = response.data
+            items.value = response.results
+            totalPages.value = response.totalPages
           } catch (error) {
             console.error('Failed to fetch items:', error)
           }
@@ -98,7 +85,6 @@ module.exports = (model) =>
 
         return {
           items,
-          filteredSet,
           paginatedSet,
           totalPages,
           searchQuery,

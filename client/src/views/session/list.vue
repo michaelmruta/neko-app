@@ -95,8 +95,8 @@
           <p class="m-0 text-muted">
             Showing
             <span>{{ (currentPage - 1) * pageSize + 1 }}</span> to
-            <span>{{ Math.min(currentPage * pageSize, filteredSet.length) }}</span> of
-            <span>{{ filteredSet.length }}</span> entries
+            <span>{{ Math.min(currentPage * pageSize, items.length) }}</span> of
+            <span>{{ items.length }}</span> entries
           </p>
           <ul class="pagination m-0 ms-auto">
             <li class="page-item" :class="{ disabled: currentPage === 1 }">
@@ -170,6 +170,7 @@ export default {
     const searchQuery = ref('')
     const pageSize = ref(10)
     const currentPage = ref(1)
+    const totalPages = ref(1)
     const items = ref([])
     const authStore = useAuthStore()
 
@@ -212,21 +213,10 @@ export default {
       }
     }
 
-    const filteredSet = computed(() => {
-      if (!searchQuery.value) return items.value || []
-
-      const query = searchQuery.value.toLowerCase()
-      return items.value?.filter((row) => row.name.toLowerCase().includes(query)) || []
-    })
-
     const paginatedSet = computed(() => {
       const start = (currentPage.value - 1) * pageSize.value
       const end = start + pageSize.value
-      return filteredSet.value.slice(start, end)
-    })
-
-    const totalPages = computed(() => {
-      return Math.ceil(filteredSet.value.length / pageSize.value)
+      return items.value.slice(start, end)
     })
 
     watch([searchQuery, pageSize], () => {
@@ -237,6 +227,7 @@ export default {
       try {
         const response = await authStore.getList('session', currentPage.value, pageSize.value)
         items.value = response.results
+        totalPages.value = response.totalPages
       } catch (error) {
         console.error('Failed to fetch items:', error)
       }
@@ -245,7 +236,8 @@ export default {
     watch([currentPage, pageSize], async () => {
       try {
         const response = await authStore.getList('session', currentPage.value, pageSize.value)
-        items.value = response.data
+        items.value = response.results
+        totalPages.value = response.totalPages
       } catch (error) {
         console.error('Failed to fetch items:', error)
       }
@@ -253,7 +245,6 @@ export default {
 
     return {
       items,
-      filteredSet,
       paginatedSet,
       totalPages,
       searchQuery,
