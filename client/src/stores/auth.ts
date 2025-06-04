@@ -71,28 +71,6 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    async function getList(model: string, page: number = 1, limit: number = 10, q: string = null) {
-        try {
-            const response = await fetch(`/api/${model}?page=${page}&limit=${limit}&q=${q}`);
-            if (!response.ok) throw new Error(`Failed to fetch ${model}`);
-            return await response.json();
-        } catch (err) {
-            console.error(`Error fetching ${model}:`, err);
-            throw err;
-        }
-    }
-
-    async function getItem(model: string, id: number) {
-        try {
-            const response = await fetch(`/api/${model}/${id}`);
-            if (!response.ok) throw new Error(`Failed to fetch ${model}`);
-            return await response.json();
-        } catch (err) {
-            console.error(`Error fetching ${model}:`, err);
-            throw err;
-        }
-    }
-
     return {
         user,
         isLoading,
@@ -100,8 +78,6 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         login,
         logout,
-        initializeAuth,
-        getList,
-        getItem
+        initializeAuth
     }
 })

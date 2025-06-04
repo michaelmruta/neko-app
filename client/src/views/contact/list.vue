@@ -183,6 +183,7 @@
 <script>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useApiStore } from '@/stores/api'
 import { useRouter } from 'vue-router'
 
 export default {
@@ -195,6 +196,7 @@ export default {
     const totalPages = ref(1)
     const items = ref([])
     const authStore = useAuthStore()
+    const apiStore = useApiStore()
 
     const isEditing = ref(false)
     const showDeleteModal = ref(false)
@@ -221,7 +223,7 @@ export default {
     function deleteRecord() {
       if (itemToDelete.value) {
         // Call API to delete the record
-        authStore
+        apiStore
           .deleteItem('contact', itemToDelete.value.id)
           .then(() => {
             // Remove item from the list
@@ -247,7 +249,7 @@ export default {
 
     onMounted(async () => {
       try {
-        const response = await authStore.getList('contact', currentPage.value, pageSize.value)
+        const response = await apiStore.getList('contact', currentPage.value, pageSize.value)
         items.value = response.results
         totalPages.value = response.totalPages
       } catch (error) {
@@ -255,9 +257,14 @@ export default {
       }
     })
 
-    watch([currentPage, pageSize], async () => {
+    watch([currentPage, pageSize, searchQuery], async () => {
       try {
-        const response = await authStore.getList('contact', currentPage.value, pageSize.value)
+        const response = await apiStore.getList(
+          'contact',
+          currentPage.value,
+          pageSize.value,
+          searchQuery.value,
+        )
         items.value = response.results
         totalPages.value = response.totalPages
       } catch (error) {

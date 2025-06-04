@@ -2,6 +2,7 @@ module.exports = (model) =>
   `<script>
     import { ref, computed, onMounted, watch } from 'vue'
     import { useAuthStore } from '@/stores/auth'
+    import { useApiStore } from '@/stores/api'
     import { useRouter } from 'vue-router'
 
     export default {
@@ -14,6 +15,7 @@ module.exports = (model) =>
         const totalPages = ref(1);
         const items = ref([]);
         const authStore = useAuthStore();
+        const apiStore = useApiStore();
 
         const isEditing = ref(false)
         const showDeleteModal = ref(false)
@@ -40,7 +42,7 @@ module.exports = (model) =>
         function deleteRecord() {
           if (itemToDelete.value) {
             // Call API to delete the record
-            authStore.deleteItem('${model?.toLowerCase()}', itemToDelete.value.id)
+            apiStore.deleteItem('${model?.toLowerCase()}', itemToDelete.value.id)
               .then(() => {
                 // Remove item from the list
                 items.value = items.value.filter(item => item.id !== itemToDelete.value.id)
@@ -65,7 +67,7 @@ module.exports = (model) =>
 
         onMounted(async () => {
           try {
-            const response = await authStore.getList('${model?.toLowerCase()}', currentPage.value, pageSize.value)
+            const response = await apiStore.getList('${model?.toLowerCase()}', currentPage.value, pageSize.value)
             items.value = response.results
             totalPages.value = response.totalPages
           } catch (error) {
@@ -73,9 +75,9 @@ module.exports = (model) =>
           }
         })
 
-        watch([currentPage, pageSize], async () => {
+        watch([currentPage, pageSize, searchQuery], async () => {
           try {
-            const response = await authStore.getList('${model?.toLowerCase()}', currentPage.value, pageSize.value)
+            const response = await apiStore.getList('${model?.toLowerCase()}', currentPage.value, pageSize.value, searchQuery.value)
             items.value = response.results
             totalPages.value = response.totalPages
           } catch (error) {

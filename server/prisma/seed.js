@@ -123,7 +123,23 @@ async function main() {
   }
 
   // Create contacts for each customer
-  const contacts = [
+  const contacts = [];
+
+  createdCustomers.forEach((customer, index) => {
+    for (let i = 0; i < 10; i++) {
+      contacts.push({
+        firstName: `Contact ${i + 1}`,
+        lastName: `Customer${index + 1}`,
+        email: `contact${i + 1}@customer${index + 1}.com`,
+        phone: `(555) ${100 + index}${100 + i}`,
+        position: i % 2 === 0 ? 'Sales Representative' : 'Account Manager',
+        customerId: customer.id
+      });
+    }
+  });
+
+  // Add original 6 contacts for compatibility
+  contacts.push(
     {
       firstName: "John",
       lastName: "Smith",
@@ -172,7 +188,7 @@ async function main() {
       position: "Innovation Lead",
       customerId: createdCustomers[4].id,
     },
-  ];
+  );
 
   for (const contact of contacts) {
     await prisma.contact.create({
