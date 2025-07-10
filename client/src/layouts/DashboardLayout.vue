@@ -152,7 +152,9 @@
               </div>
             </a>
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              <a href="#" class="dropdown-item">Profile</a>
+              <router-link to="/profile" class="dropdown-item">
+                <img :src="userAvatarUrl" alt="avatar" class="dropdown-avatar" /> Profile
+              </router-link>
               <div class="dropdown-divider"></div>
               <a href="#" class="dropdown-item" @click.prevent="handleLogout">Logout</a>
             </div>
@@ -197,6 +199,14 @@ const router = useRouter()
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
 
+const userAvatarUrl = computed(() => {
+  if (!user.value || !user.value.id) return '/default-avatar.png'
+  if (user.value.avatar) {
+    return `/api/users/avatar/${user.value.id}?t=${Date.now()}`
+  }
+  return '/default-avatar.png'
+})
+
 async function handleLogout() {
   await authStore.logout()
   router.push('/login')
@@ -207,5 +217,13 @@ async function handleLogout() {
 /* Add any custom styles here */
 .navbar-vertical {
   background-color: #1e293b;
+}
+.dropdown-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+  vertical-align: middle;
 }
 </style>

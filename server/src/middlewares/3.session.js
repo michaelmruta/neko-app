@@ -5,6 +5,13 @@ const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const prisma = require("../database");
 
 module.exports = function (app) {
+  // CORS for local dev
+  const cors = require('cors');
+  app.use(cors({
+    origin: 'http://localhost:5173', // frontend URL
+    credentials: true
+  }));
+
   // cookies & JSON body
   app.use(cookieParser());
   app.use(express.json({ limit: "10mb" }));
@@ -21,7 +28,8 @@ module.exports = function (app) {
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: false, // always false for local dev, set to true in production with HTTPS
+        sameSite: 'lax', // lax is good for most SPA auth flows
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       },
       store: new PrismaSessionStore(prisma, {

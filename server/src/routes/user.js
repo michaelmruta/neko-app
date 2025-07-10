@@ -54,6 +54,75 @@ const paginatedResults = (model) => async (req, res, next) => {
 };
 
 module.exports = function (app) {
+  // Forgot Password
+  /**
+   * @route POST /api/users/forgot-password
+   * @desc Request password reset
+   * @access Public
+   */
+  app.post("/api/users/forgot-password", async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    try {
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (!user) {
+        // Don't reveal if user exists
+        return res.status(200).json({ message: "If that email exists, a reset link has been sent." });
+      }
+      const resetToken = require("crypto").randomBytes(32).toString("hex");
+      const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { resetToken, resetTokenExpiry },
+      });
+      const { sendPasswordResetEmail } = require("../mailer");
+      await sendPasswordResetEmail(email, resetToken);
+      res.status(200).json({ message: "If that email exists, a reset link has been sent." });
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  /**
+   * @route POST /api/users/reset-password
+   * @desc Reset password with token
+   * @access Public
+   */
+  app.post("/api/users/reset-password", async (req, res) => {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return res.status(400).json({ message: "Token and new password are required" });
+    }
+    try {
+      const user = await prisma.user.findFirst({
+        where: {
+          resetToken: token,
+          resetTokenExpiry: { gte: new Date() },
+        },
+      });
+      if (!user) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+      }
+      const salt = await require("bcrypt").genSalt(10);
+      const hashedPassword = await require("bcrypt").hash(password, salt);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          password: hashedPassword,
+          resetToken: null,
+          resetTokenExpiry: null,
+        },
+      });
+      res.status(200).json({ message: "Password reset successful. You can now log in." });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   // Admin middleware
   const requireAdmin = (req, res, next) => {
     if (!req.session.user || req.session.user.role !== "ADMIN") {
@@ -365,6 +434,7 @@ module.exports = function (app) {
    * @access Private
    */
   app.get("/api/users/me", async (req, res) => {
+    console.log(req.session.user);
     try {
       if (!req.session.user) {
         return res.status(401).json({ message: "Not authenticated" });
@@ -380,6 +450,7 @@ module.exports = function (app) {
           createdAt: true,
           updatedAt: true,
           isVerified: true,
+          avatar: true,
         },
       });
 
@@ -390,6 +461,77 @@ module.exports = function (app) {
       res.json(user);
     } catch (error) {
       console.error("Get profile error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  /**
+   * @route POST /api/users/avatar
+   * @desc Upload user avatar
+   * @access Private
+   */
+  const multer = require("multer");
+  const path = require("path");
+  const fs = require("fs");
+  const DATA_DIR = path.join(__dirname, "../../../data");
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, DATA_DIR);
+    },
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname);
+      cb(null, `avatar_${req.session.user.id}${ext}`);
+    },
+  });
+  const upload = multer({ storage });
+
+  app.post("/api/users/avatar", upload.single("avatar"), async (req, res) => {
+    try {
+      if (!req.session.user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const ext = path.extname(req.file.originalname);
+      const avatarFilename = `avatar_${req.session.user.id}${ext}`;
+      await prisma.user.update({
+        where: { id: req.session.user.id },
+        data: { avatar: avatarFilename },
+      });
+      res.json({ success: true, avatar: avatarFilename });
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  /**
+   * @route GET /api/users/avatar/:id
+   * @desc Serve user avatar
+   * @access Public
+   */
+  app.get("/api/users/avatar/:id", async (req, res) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: parseInt(req.params.id) },
+        select: { avatar: true },
+      });
+      if (!user || !user.avatar) {
+        return res
+          .status(404)
+          .sendFile(
+            path.join(__dirname, "../../../client/public/default-avatar.png")
+          );
+      }
+      const avatarPath = path.join(DATA_DIR, user.avatar);
+      if (!fs.existsSync(avatarPath)) {
+        return res
+          .status(404)
+          .sendFile(
+            path.join(__dirname, "../../../client/public/default-avatar.png")
+          );
+      }
+      res.sendFile(avatarPath);
+    } catch (error) {
       res.status(500).json({ message: "Server error" });
     }
   });

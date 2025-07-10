@@ -16,9 +16,33 @@ const router = createRouter({
             meta: { requiresAuth: false }
         },
         {
+            path: '/forgot-password',
+            name: 'forgot-password',
+            component: () => import('../views/ForgotPassword.vue'),
+            meta: { requiresAuth: false }
+        },
+        {
+            path: '/reset-password',
+            name: 'reset-password',
+            component: () => import('../views/ResetPassword.vue'),
+            meta: { requiresAuth: false }
+        },
+        {
             path: '/signup',
             name: 'signup',
             component: () => import('../components/SignUp.vue'),
+            meta: { requiresAuth: false }
+        },
+        {
+            path: '/terms',
+            name: 'terms',
+            component: () => import('../views/Terms.vue'),
+            meta: { requiresAuth: false }
+        },
+        {
+            path: '/policy',
+            name: 'policy',
+            component: () => import('../views/Policy.vue'),
             meta: { requiresAuth: false }
         },
         {
@@ -40,6 +64,16 @@ const router = createRouter({
                 path: '',
                 name: 'users',
                 component: () => import('../views/Users.vue')
+            }]
+        },
+        {
+            path: '/profile',
+            meta: { requiresAuth: true },
+            component: () => import('../layouts/DashboardLayout.vue'),
+            children: [{
+                path: '',
+                name: 'profile',
+                component: () => import('../views/Profile.vue')
             }]
         },
         {

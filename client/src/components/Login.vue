@@ -33,7 +33,7 @@
             <label class="form-label">
               Password
               <span class="form-label-description">
-                <a href="#">Forgot password?</a>
+                <router-link to="/forgot-password">Forgot password?</router-link>
               </span>
             </label>
             <input
@@ -63,7 +63,7 @@
         <div class="hr-text">or</div>
         <div class="card-body">
           <div class="btn-list">
-            <a href="#" class="btn btn-white w-100">
+            <a href="/api/auth/google" class="btn btn-white w-100">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="icon me-2 text-google"

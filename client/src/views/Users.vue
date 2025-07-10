@@ -239,7 +239,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { userService } from '@/services/api'
 
 // Mock data for users - in a real app, this would come from an API
 const users = ref([])
@@ -323,24 +323,24 @@ function closeUserModal() {
   showRecordModal.value = false
 }
 
-function saveUser() {
-  if (isEditing.value) {
-    // Update existing user
-    const index = users.value.findIndex((u) => u.id === currentRecord.value.id)
-    if (index !== -1) {
-      users.value[index] = { ...currentRecord.value }
+async function saveUser() {
+  try {
+    if (isEditing.value) {
+      // Update existing user
+      await userService.update(currentRecord.value.id, currentRecord.value)
+    } else {
+      // Add new user
+      await userService.create(currentRecord.value)
     }
-  } else {
-    // Add new user
-    const newId = Math.max(0, ...users.value.map((u) => u.id)) + 1
-    users.value.push({
-      ...currentRecord.value,
-      id: newId,
-      createdAt: new Date().toISOString(),
-    })
-  }
 
-  closeUserModal()
+    // Refresh the user list
+    const data = await userService.getList(currentPage.value, pageSize.value, searchQuery.value)
+    users.value = data.results
+
+    closeUserModal()
+  } catch (error) {
+    console.error('Failed to save user:', error)
+  }
 }
 
 function confirmDeleteUser(user) {
@@ -353,11 +353,19 @@ function closeDeleteModal() {
   userToDelete.value = null
 }
 
-function deleteUser() {
+async function deleteUser() {
   if (userToDelete.value) {
-    // #TODO call api
-    // reload page
-    closeDeleteModal()
+    try {
+      await userService.delete(userToDelete.value.id)
+
+      // Refresh the user list
+      const data = await userService.getList(currentPage.value, pageSize.value, searchQuery.value)
+      users.value = data.results
+
+      closeDeleteModal()
+    } catch (error) {
+      console.error('Failed to delete user:', error)
+    }
   }
 }
 
@@ -365,22 +373,20 @@ watch([searchQuery, pageSize], () => {
   currentPage.value = 1
 })
 
-// In a real application, you would fetch users from an API
-const authStore = useAuthStore()
-
+// Fetch users from the API
 onMounted(async () => {
   try {
-    const data = await authStore.getList('users', currentPage.value, pageSize.value)
+    const data = await userService.getList(currentPage.value, pageSize.value, searchQuery.value)
     users.value = data.results
   } catch (error) {
     console.error('Failed to fetch users:', error)
   }
 })
 
-watch([currentPage, pageSize], async () => {
+watch([currentPage, pageSize, searchQuery], async () => {
   try {
-    const data = await authStore.getList('users', currentPage.value, pageSize.value)
-    users.value = data.users
+    const data = await userService.getList(currentPage.value, pageSize.value, searchQuery.value)
+    users.value = data.results
   } catch (error) {
     console.error('Failed to fetch users:', error)
   }
