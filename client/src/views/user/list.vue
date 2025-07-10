@@ -68,9 +68,11 @@
                     <th scope="col">Status</th>
                     <th scope="col">Last Login</th>
                     <th scope="col">Is Verified</th>
+                    <th scope="col">Avatar</th>
                     <th scope="col">Verification Token</th>
                     <th scope="col">Reset Token</th>
                     <th scope="col">Reset Token Expiry</th>
+                    <th scope="col">Google Id</th>
                     <th scope="col">Created At</th>
                     <th scope="col">Updated At</th>
                     <th scope="col">Actions</th>
@@ -86,9 +88,11 @@
                     <td>{{ item.status }}</td>
                     <td>{{ item.lastLogin }}</td>
                     <td>{{ item.isVerified }}</td>
+                    <td>{{ item.avatar }}</td>
                     <td>{{ item.verificationToken }}</td>
                     <td>{{ item.resetToken }}</td>
                     <td>{{ item.resetTokenExpiry }}</td>
+                    <td>{{ item.googleId }}</td>
                     <td>{{ item.createdAt }}</td>
                     <td>{{ item.updatedAt }}</td>
                     <td>
@@ -179,6 +183,7 @@
 <script>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import api from '@/services/api'
 import { useApiStore } from '@/stores/api'
 import { useRouter } from 'vue-router'
 

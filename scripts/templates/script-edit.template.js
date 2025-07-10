@@ -2,6 +2,7 @@ module.exports = (model) =>
   `<script>
     import { ref, onMounted } from 'vue'
     import { useAuthStore } from '@/stores/auth'
+import api from '@/services/api'
     import { useRouter, useRoute } from 'vue-router'
 
     export default {
@@ -43,7 +44,7 @@ module.exports = (model) =>
             isLoading.value = true;
             errorMessage.value = '';
             
-            const response = await authStore.getItem('${model?.toLowerCase()}', id);
+            const response = await api.getItem('${model?.toLowerCase()}', id);
             console.log('Fetched record:', response);
             formData.value = response.data || {};
           } catch (error) {
@@ -76,11 +77,11 @@ module.exports = (model) =>
         }
         
         async function createRecord() {
-          return authStore.createItem('${model?.toLowerCase()}', formData.value);
+          return api.createItem('${model?.toLowerCase()}', formData.value);
         }
         
         async function updateRecord() {
-          return authStore.updateItem(
+          return api.updateItem(
             '${model?.toLowerCase()}', 
             route.query.id, 
             formData.value

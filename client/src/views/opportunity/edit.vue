@@ -137,6 +137,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import api from '@/services/api'
 import { useRouter, useRoute } from 'vue-router'
 
 export default {
@@ -178,7 +179,7 @@ export default {
         isLoading.value = true
         errorMessage.value = ''
 
-        const response = await authStore.getItem('opportunity', id)
+        const response = await api.getItem('opportunity', id)
         console.log('Fetched record:', response)
         formData.value = response.data || {}
       } catch (error) {
@@ -211,11 +212,11 @@ export default {
     }
 
     async function createRecord() {
-      return authStore.createItem('opportunity', formData.value)
+      return api.createItem('opportunity', formData.value)
     }
 
     async function updateRecord() {
-      return authStore.updateItem('opportunity', route.query.id, formData.value)
+      return api.updateItem('opportunity', route.query.id, formData.value)
     }
 
     function cancel() {

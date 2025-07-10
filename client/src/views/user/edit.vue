@@ -78,6 +78,10 @@
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="avatar" class="form-label">Avatar</label>
+                  <input type="text" class="form-control" id="avatar" v-model="formData.avatar" />
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
                   <label for="verificationToken" class="form-label">Verification Token</label>
                   <input
                     type="password"
@@ -102,6 +106,15 @@
                     class="form-control"
                     id="resetTokenExpiry"
                     :value="formatDateTime(formData.resetTokenExpiry)"
+                  />
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
+                  <label for="googleId" class="form-label">Google Id</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="googleId"
+                    v-model="formData.googleId"
                   />
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 px-5 py-2">
@@ -173,6 +186,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import api from '@/services/api'
 import { useRouter, useRoute } from 'vue-router'
 
 export default {
@@ -214,7 +228,7 @@ export default {
         isLoading.value = true
         errorMessage.value = ''
 
-        const response = await authStore.getItem('user', id)
+        const response = await api.getItem('user', id)
         console.log('Fetched record:', response)
         formData.value = response.data || {}
       } catch (error) {
@@ -247,11 +261,11 @@ export default {
     }
 
     async function createRecord() {
-      return authStore.createItem('user', formData.value)
+      return api.createItem('user', formData.value)
     }
 
     async function updateRecord() {
-      return authStore.updateItem('user', route.query.id, formData.value)
+      return api.updateItem('user', route.query.id, formData.value)
     }
 
     function cancel() {

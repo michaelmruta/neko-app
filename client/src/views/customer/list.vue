@@ -173,6 +173,7 @@
 <script>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import api from '@/services/api'
 import { useApiStore } from '@/stores/api'
 import { useRouter } from 'vue-router'
 
